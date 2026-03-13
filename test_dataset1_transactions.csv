@@ -1,0 +1,26 @@
+department,vendor,amount,date,project,category
+Engineering,PayPal,4250.75,2026-01-03,Internal Tools,Digital Payment
+Marketing,Stripe,1800.00,2026-01-05,Ad Campaign Q1,Payment Gateway
+Operations,Square,670.50,2026-01-07,Office Supplies,POS Transactions
+Finance,Mastercard,15200.00,2026-01-10,Treasury Operations,Card Transactions
+HR,Visa,3400.25,2026-01-12,Recruitment Drive,Card Payments
+IT,PayPal,9800.00,2026-01-14,Cloud Infrastructure,Digital Payment
+Legal,American Express,22000.00,2026-01-16,Compliance Audit,Card Transactions
+Marketing,Stripe,5600.50,2026-01-18,Influencer Campaign,Payment Gateway
+Operations,Square,1250.75,2026-01-20,Warehouse Mgmt,POS Transactions
+Engineering,PayPal,3100.00,2026-01-22,Dev Tools Renewal,Digital Payment
+Finance,Visa,47000.00,2026-01-24,Investment Portfolio,Card Payments
+HR,Mastercard,2750.25,2026-01-26,Employee Benefits,Card Transactions
+IT,Stripe,11500.00,2026-01-28,SaaS Subscriptions,Payment Gateway
+Legal,PayPal,8900.75,2026-01-30,Contract Management,Digital Payment
+Marketing,American Express,6800.00,2026-02-01,Trade Show — Delhi,Card Transactions
+Operations,Visa,4300.50,2026-02-03,Logistics Partner,Card Payments
+Engineering,Square,2200.25,2026-02-05,Hardware Procurement,POS Transactions
+Finance,Stripe,31000.00,2026-02-07,Payroll Processing,Payment Gateway
+HR,PayPal,1950.75,2026-02-09,Training Program,Digital Payment
+IT,Mastercard,17800.00,2026-02-11,Cybersecurity Tools,Card Transactions
+Legal,Visa,5600.00,2026-02-13,IP Registration,Card Payments
+Marketing,Square,3400.25,2026-02-15,Print Media,POS Transactions
+Operations,Stripe,8900.50,2026-02-17,Fleet Management,Payment Gateway
+Engineering,American Express,24500.75,2026-02-19,Server Upgrade,Card Transactions
+Finance,PayPal,61000.00,2026-02-21,Tax Filing Services,Digital Payment

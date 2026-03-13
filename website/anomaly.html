@@ -504,7 +504,7 @@
                 const sevIcon = isCritical ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill';
                 const normalL = (a.normal_spend / 100000).toFixed(1);
                 const currentL = (a.current_spend / 100000).toFixed(1);
-                const chartColor = isCritical ? '#EA4335' : '#F9AB00';
+                const chartColor = '#1A73E8';
 
                 // Time ago
                 const detected = new Date(a.detected_at);
@@ -542,7 +542,6 @@
                     '<div class="ad-causes"><div class="ad-causes-title">Possible Causes</div>' + causesHTML + '</div>' +
                     '<div class="ad-card-footer">' +
                     '<span class="ad-method"><i class="bi bi-cpu"></i> ' + a.method + '</span>' +
-                    '<span class="ad-timestamp"><i class="bi bi-clock"></i> Detected ' + timeStr + '</span>' +
                     '</div></div>';
 
                 grid.appendChild(card);
@@ -560,8 +559,9 @@
         }
 
         // ── Render AI Insights ──
-        function renderInsights(insights) {
-            const grid = document.getElementById('insightsGrid');
+        function renderInsights(insights, targetId = 'insightsGrid') {
+            const grid = document.getElementById(targetId);
+            if (!grid) return;
             grid.innerHTML = '';
             (insights || []).forEach(ins => {
                 const card = document.createElement('div');
@@ -769,7 +769,7 @@
                 renderCustomCards(data.anomalies);
 
                 // Render custom insights
-                renderInsightsIn(data.insights, 'customInsightsGrid');
+                renderInsights(data.insights, 'customInsightsGrid');
 
                 // Status badge
                 status.textContent = '✓ ' + data.summary.total_anomalies + ' anomalies detected';
@@ -806,7 +806,7 @@
                 var icon = isCritical ? 'bi-exclamation-octagon-fill' : 'bi-exclamation-triangle-fill';
                 var sevIcon = isCritical ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill';
                 var sevLabel = isCritical ? 'Critical' : 'Warning';
-                var chartColor = isCritical ? '#EA4335' : '#F9AB00';
+                var chartColor = '#1A73E8';
 
                 var detected = new Date(a.detected_at);
                 var hoursAgo = Math.round((Date.now() - detected.getTime()) / 3600000);
@@ -833,7 +833,6 @@
                     '<div class="ad-chart-wrap"><div class="ad-chart-label">Trend — ' + a.column + ' (' + a.method + ')</div><canvas id="customChart' + i + '"></canvas></div>' +
                     '<div class="ad-card-footer">' +
                     '<span class="ad-method"><i class="bi bi-cpu"></i> ' + a.method + '</span>' +
-                    '<span class="ad-timestamp"><i class="bi bi-clock"></i> Detected ' + timeStr + '</span>' +
                     '</div></div>';
 
                 grid.appendChild(card);

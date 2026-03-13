@@ -1,0 +1,16 @@
+department,vendor,amount,date,project,category
+Transport Infrastructure,Larsen & Toubro,2500000,2026-01-15,Chennai Metro Phase 2,Construction
+Healthcare Services,Siemens Healthineers,1850000,2026-01-22,District Hospital Upgrade,Medical Equipment
+Education,Tata Consultancy Services,750000,2026-02-03,Smart Classroom Initiative,IT Services
+Urban Development,Honeywell India,3200000,2026-02-10,Smart City — Coimbatore,IoT Infrastructure
+Transport Infrastructure,Ashoka Buildcon,4100000,2026-02-18,NH-48 Highway Expansion,Road Construction
+Healthcare Services,Abbott India,620000,2026-02-25,TNHSP Medical Supplies,Pharmaceuticals
+Energy,Adani Green Energy,5500000,2026-03-01,Solar Farm — Ramanathapuram,Renewable Energy
+Water Resources,Megha Engineering,2800000,2026-03-05,Cauvery Canal Restoration,Civil Works
+Education,Wipro Technologies,480000,2026-03-08,Digital Library Network,Software Licensing
+Transport Infrastructure,Volvo Buses India,1200000,2026-03-10,Bus Rapid Transit — Madurai,Vehicle Procurement
+Urban Development,Sobha Developers,3600000,2026-01-20,Affordable Housing Phase 3,Real Estate
+Healthcare Services,Force Motors,890000,2026-02-12,Mobile Health Units,Vehicle Fleet
+Energy,Suzlon Energy,7200000,2026-02-28,Wind Turbine Procurement,Power Generation
+Water Resources,VA Tech Wabag,1950000,2026-03-02,Desalination Plant — Nemmeli,Water Treatment
+Transport Infrastructure,IRB Infrastructure,4800000,2026-03-06,Chennai Outer Ring Road,Highway Construction

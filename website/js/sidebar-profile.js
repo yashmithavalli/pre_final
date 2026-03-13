@@ -3,6 +3,7 @@
  * Populates: #sidebarAvatar, #sidebarName, #sidebarRole
  */
 (async function loadSidebarProfile() {
+  const isPvtPage = window.location.pathname.includes('pvt-dashboard');
   try {
     const res  = await fetch('/api/me');
     const data = await res.json();
@@ -12,7 +13,14 @@
     if (!avatarEl || !nameEl || !roleEl) return;
 
     if (data.loggedIn && data.user) {
-      const { userName, orgName, role } = data.user;
+      const { userName, orgName, role, orgType } = data.user;
+      // Cross-route: private org → pvt-dashboard, public org → dashboard
+      if (orgType === 'private' && !isPvtPage && window.location.pathname.includes('dashboard')) {
+        window.location.href = 'pvt-dashboard.html'; return;
+      }
+      if (orgType !== 'private' && isPvtPage) {
+        window.location.href = 'dashboard.html'; return;
+      }
       const initials = userName
         ? userName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
         : 'A';

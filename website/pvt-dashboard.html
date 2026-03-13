@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Dashboard — Unified FinOps Platform</title>
+  <meta name="description" content="Private enterprise FinOps dashboard with project analytics, team usage, AI cost optimization, and profit impact charts." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/pvt-dashboard.css" />
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
+</head>
+
+<body>
+  <div class="dash-layout">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">FO</div>
+        <div class="sidebar-brand">Unified<span>FinOps</span></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Enterprise</div>
+        <a href="pvt-dashboard.html" class="sidebar-item active"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="upload.html" class="sidebar-item"><i class="bi bi-database-gear"></i> Data Lake</a>
+        <a href="reports.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+        <a href="erp.html" class="sidebar-item"><i class="bi bi-plug"></i> ERP Integration</a>
+
+        <div class="sidebar-section-title">Analytics</div>
+        <a href="vendors.html" class="sidebar-item"><i class="bi bi-shop"></i> Vendors</a>
+        <a href="anomaly.html" class="sidebar-item"><i class="bi bi-robot"></i> AI Anomaly</a>
+        <a href="audit-ledger.html" class="sidebar-item"><i class="bi bi-journal-bookmark"></i> Audit Ledger</a>
+        <a href="policies.html" class="sidebar-item"><i class="bi bi-shield-check"></i> Policies</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+          <div>
+            <div class="sidebar-user-name" id="sidebarName">Admin</div>
+            <div class="sidebar-user-role" id="sidebarRole">Enterprise</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="dash-main">
+      <!-- Top Bar -->
+      <div class="dash-topnav">
+        <div class="dash-topnav-left">
+          <button class="dash-menu-btn" id="dashMenuBtn"><i class="bi bi-list"></i></button>
+          <div class="dash-breadcrumb">
+            <span>FinOps</span>
+            <i class="bi bi-chevron-right"></i>
+            <span class="dash-breadcrumb-active">Enterprise Dashboard</span>
+          </div>
+        </div>
+        <div class="dash-topnav-right">
+          <button id="themeToggleBtn" class="dash-icon-btn" aria-label="Toggle Theme"><i class="bi bi-moon"></i></button>
+          <button class="dash-icon-btn pvt-setup-trigger" id="setupToggleBtn" title="Setup Projects & Team">
+            <i class="bi bi-sliders"></i>
+          </button>
+          <a href="upload.html" class="dash-icon-btn" title="Upload Data"><i class="bi bi-cloud-arrow-up"></i></a>
+          <a href="index.html" class="dash-icon-btn" title="Home"><i class="bi bi-house"></i></a>
+        </div>
+      </div>
+
+      <div class="dash-content">
+
+        <!-- ── SETUP PANEL (shown when no config yet, or on toggle) ── -->
+        <div id="pvtSetupPanel" class="pvt-setup-panel" style="display:none;">
+          <div class="pvt-setup-header">
+            <div>
+              <div class="pvt-setup-title"><i class="bi bi-sliders"></i> Personalize Your Dashboard</div>
+              <div class="pvt-setup-sub">Add your projects and team members to generate your analytics</div>
+            </div>
+            <button class="pvt-setup-close" id="closePvtSetup"><i class="bi bi-x-lg"></i></button>
+          </div>
+          <div class="pvt-setup-grid">
+            <!-- Projects -->
+            <div class="pvt-setup-col">
+              <div class="pvt-setup-col-title"><i class="bi bi-folder2-open"></i> Projects</div>
+              <div class="pvt-tag-list" id="pvtProjectTags"></div>
+              <div class="pvt-tag-input-row">
+                <input type="text" id="pvtProjectInput" class="form-input" placeholder="e.g. Mobile App v2.0" />
+                <button class="pvt-tag-add-btn" id="addProjectBtn"><i class="bi bi-plus-lg"></i></button>
+              </div>
+            </div>
+            <!-- Team Members -->
+            <div class="pvt-setup-col">
+              <div class="pvt-setup-col-title"><i class="bi bi-people"></i> Team Members</div>
+              <div class="pvt-tag-list" id="pvtTeamTags"></div>
+              <div class="pvt-tag-input-row">
+                <input type="text" id="pvtTeamInput" class="form-input" placeholder="e.g. Rahul Sharma" />
+                <button class="pvt-tag-add-btn" id="addTeamBtn"><i class="bi bi-plus-lg"></i></button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:20px;gap:10px;">
+            <button class="btn-secondary" id="cancelPvtSetup">Cancel</button>
+            <button class="btn-primary" id="savePvtSetup"><i class="bi bi-check-lg"></i> Save & Reload</button>
+          </div>
+        </div>
+
+        <!-- ── FIRST RUN PROMPT (if not configured yet) ── -->
+        <div id="pvtFirstRun" style="display:none;" class="pvt-first-run">
+          <div class="pvt-first-run-inner">
+            <div class="pvt-first-run-icon"><i class="bi bi-briefcase"></i></div>
+            <div class="pvt-first-run-title">Set Up Your Enterprise Dashboard</div>
+            <div class="pvt-first-run-sub">Add your projects and team members to generate personalized analytics, cost breakdowns, and AI optimization insights.</div>
+            <button class="btn-primary" id="openSetupBtn" style="margin-top:20px;">
+              <i class="bi bi-sliders"></i> Configure Dashboard
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════ MAIN DASHBOARD CONTENT ══════ -->
+        <div id="pvtDashboardContent" style="display:none;">
+
+          <!-- Page Header -->
+          <div class="dash-page-header">
+            <div>
+              <h1 class="dash-page-title" id="pvtOrgTitle">Enterprise Financial Dashboard</h1>
+              <p class="dash-page-subtitle" id="pvtOrgSub">Project-level spending · Team analytics · AI cost optimization</p>
+            </div>
+            <div class="dash-header-actions">
+              <button class="btn-secondary" id="pvtSetupBtn"><i class="bi bi-sliders"></i> Edit Setup</button>
+              <a href="upload.html" class="btn-primary"><i class="bi bi-cloud-arrow-up"></i> Upload Data</a>
+            </div>
+          </div>
+
+          <!-- KPI Row -->
+          <div class="kpi-grid" id="pvtKpiGrid">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- ══ 1. PROJECT COST OVERVIEW ══ -->
+          <div class="pvt-section-header">
+            <div class="pvt-section-title"><i class="bi bi-folder2-open"></i> Project Cost Overview</div>
+            <div class="pvt-section-badge" style="background:var(--blue-light);color:var(--blue);">LIVE</div>
+          </div>
+          <div class="pvt-project-grid" id="pvtProjectGrid">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- ══ 2. TEAM USAGE ANALYTICS ══ -->
+          <div class="pvt-section-header" style="margin-top:28px;">
+            <div class="pvt-section-title"><i class="bi bi-people"></i> Team Usage Analytics</div>
+            <div class="pvt-section-badge" style="background:var(--green-light);color:var(--green);">ANALYTICS</div>
+          </div>
+          <div class="chart-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div>
+                  <div class="dash-card-title">Spend Attribution by Team Member</div>
+                  <div class="dash-card-subtitle">Transactions proportionally mapped to your team</div>
+                </div>
+              </div>
+              <div class="chart-wrap"><canvas id="teamDonutChart"></canvas></div>
+            </div>
+            <div class="dash-card" id="pvtTeamTableCard">
+              <div class="dash-card-header">
+                <div>
+                  <div class="dash-card-title">Member Breakdown</div>
+                  <div class="dash-card-subtitle">Total attributed spend per person</div>
+                </div>
+              </div>
+              <div id="pvtTeamTable" style="padding-top:6px;"></div>
+            </div>
+          </div>
+
+          <!-- ══ 3. AI COST OPTIMIZATION PANEL ══ -->
+          <div class="pvt-section-header" style="margin-top:28px;">
+            <div class="pvt-section-title"><i class="bi bi-robot"></i> AI Cost Optimization Panel</div>
+            <div class="pvt-section-badge" style="background:var(--yellow-light);color:#B06D00;">AI POWERED</div>
+          </div>
+          <div id="pvtAiPanel" class="pvt-ai-grid">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- ══ 4. PROFIT IMPACT CHART ══ -->
+          <div class="pvt-section-header" style="margin-top:28px;">
+            <div class="pvt-section-title"><i class="bi bi-graph-up-arrow"></i> Profit Impact Chart</div>
+            <div class="pvt-section-badge" style="background:var(--green-light);color:var(--green);">TREND</div>
+          </div>
+          <div class="dash-card" style="margin-bottom:32px;">
+            <div class="dash-card-header">
+              <div>
+                <div class="dash-card-title">Monthly Cost vs Projected Savings</div>
+                <div class="dash-card-subtitle">Actual spend and estimated savings from AI optimization recommendations</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:300px;"><canvas id="pvtProfitChart"></canvas></div>
+          </div>
+
+        </div><!-- /pvtDashboardContent -->
+      </div><!-- /dash-content -->
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/sidebar-profile.js"></script>
+  <script src="js/pvt-dashboard.js"></script>
+  <script src="js/theme.js"></script>
+</body>
+
+</html>

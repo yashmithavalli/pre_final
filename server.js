@@ -127,15 +127,23 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    // Backfill orgType for legacy users who don't have it stored
+    let orgType = user.orgType;
+    if (!orgType) {
+      orgType = (user.username || '').endsWith('_govt') ? 'public' : 'private';
+      await db.collection('users').updateOne({ _id: user._id }, { $set: { orgType } });
+    }
+
     // Set session
     req.session.userId = user._id;
     req.session.userName = user.userName;
     req.session.role = user.role;
     req.session.orgName = user.orgName;
+    req.session.orgType = orgType;
 
     res.json({
       success: true,
-      user: { userName: user.userName, email: user.email, role: user.role, orgName: user.orgName }
+      user: { userName: user.userName, email: user.email, role: user.role, orgName: user.orgName, orgType }
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -154,7 +162,7 @@ app.get('/api/me', (req, res) => {
   if (req.session.userId) {
     res.json({
       loggedIn: true,
-      user: { userName: req.session.userName, role: req.session.role, orgName: req.session.orgName }
+      user: { userName: req.session.userName, role: req.session.role, orgName: req.session.orgName, orgType: req.session.orgType }
     });
   } else {
     res.json({ loggedIn: false });
@@ -243,8 +251,92 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════
-// DATA APIs
+// PRIVATE ORG — PROJECTS & TEAM MANAGEMENT
 // ══════════════════════════════════════════════════════════
+
+// GET /api/pvt/setup — get org's projects + team members
+app.get('/api/pvt/setup', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+  if (req.session.orgType !== 'private') return res.status(403).json({ error: 'Private org only' });
+  const setup = await db.collection('pvt_setup').findOne({ orgName: req.session.orgName });
+  res.json(setup || { projects: [], teamMembers: [] });
+});
+
+// POST /api/pvt/setup — save/update org's projects + team members
+app.post('/api/pvt/setup', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+  if (req.session.orgType !== 'private') return res.status(403).json({ error: 'Private org only' });
+  const { projects, teamMembers } = req.body;
+  await db.collection('pvt_setup').updateOne(
+    { orgName: req.session.orgName },
+    { $set: { orgName: req.session.orgName, projects: projects || [], teamMembers: teamMembers || [], updatedAt: new Date() } },
+    { upsert: true }
+  );
+  res.json({ success: true });
+});
+
+// GET /api/pvt/analytics — private org analytics from transactions
+app.get('/api/pvt/analytics', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+  if (req.session.orgType !== 'private') return res.status(403).json({ error: 'Private org only' });
+  const orgQuery = { orgName: req.session.orgName };
+  const txns = await db.collection('transactions').find(orgQuery).toArray();
+  const setup = await db.collection('pvt_setup').findOne(orgQuery) || { projects: [], teamMembers: [] };
+
+  // Project cost map
+  const projectCosts = {};
+  (setup.projects || []).forEach(p => { projectCosts[p] = 0; });
+  txns.forEach(t => {
+    const proj = t.project || t.department || 'General';
+    projectCosts[proj] = (projectCosts[proj] || 0) + (parseFloat(t.amount) || 0);
+  });
+
+  // Team usage map
+  const teamUsage = {};
+  (setup.teamMembers || []).forEach(m => { teamUsage[m] = 0; });
+  if (setup.teamMembers && setup.teamMembers.length > 0) {
+    txns.forEach((t, i) => {
+      const member = setup.teamMembers[i % setup.teamMembers.length];
+      teamUsage[member] = (teamUsage[member] || 0) + (parseFloat(t.amount) || 0);
+    });
+  }
+
+  // Monthly trend for profit impact
+  const monthMap = {};
+  txns.forEach(t => {
+    const d = t.date ? new Date(t.date) : new Date(t.uploadedAt);
+    if (isNaN(d)) return;
+    const key = d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+    monthMap[key] = (monthMap[key] || 0) + (parseFloat(t.amount) || 0);
+  });
+
+  // AI cost optimization hints
+  const vendorMap = {};
+  txns.forEach(t => {
+    const v = t.vendor || 'Unknown';
+    vendorMap[v] = (vendorMap[v] || 0) + (parseFloat(t.amount) || 0);
+  });
+  const topVendors = Object.entries(vendorMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const totalSpend = txns.reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+  const optimizations = topVendors.map(([vendor, amount]) => ({
+    vendor,
+    amount,
+    savings: Math.round(amount * 0.12),
+    tip: amount > 1000000 ? 'Negotiate bulk discount or switch vendor' : 'Monitor for duplicate charges'
+  }));
+
+  res.json({
+    txnCount: txns.length,
+    totalSpend,
+    projectCosts,
+    teamUsage,
+    monthlyTrend: monthMap,
+    optimizations,
+    projects: setup.projects,
+    teamMembers: setup.teamMembers
+  });
+});
+
 
 // Get transactions
 app.get('/api/transactions', async (req, res) => {

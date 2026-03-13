@@ -42,7 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="success-desc">Redirecting to your dashboard...</div>
             </div>
           `;
-          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+          setTimeout(() => {
+            const dest = data.user.orgType === 'private' ? 'pvt-dashboard.html' : 'dashboard.html';
+            window.location.href = dest;
+          }, 1200);
         } else {
           btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
           btn.disabled = false;

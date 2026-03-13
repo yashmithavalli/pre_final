@@ -143,7 +143,7 @@ function renderDomainCards(txns) {
   if (!txns.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);">
       <i class="bi bi-inbox" style="font-size:32px;opacity:0.4;"></i>
-      <div style="margin-top:12px;font-size:14px;">Upload data to see department spending cards.</div>
+      <div style="margin-top:12px;font-size:14px;">Upload data to see business unit spending cards.</div>
     </div>`;
     return;
   }
@@ -203,7 +203,7 @@ function expandDept(dept, color) {
     <div class="project-panel-header">
       <div>
         <div class="project-panel-title"><i class="bi bi-building" style="color:${color};"></i> ${dept.name}</div>
-        <div class="project-panel-sub">${dept.count} transactions  ·  ${dept.vendors.size} vendors  ·  Total: ${fmtINR(dept.total)}</div>
+        <div class="project-panel-sub">${dept.count} transactions  ·  ${dept.vendors.size} vendors  ·  Total Assets: ${fmtINR(dept.total)}</div>
       </div>
       <button class="btn-secondary" onclick="document.getElementById('projectPanel').innerHTML='';document.querySelectorAll('.domain-card').forEach(c=>c.classList.remove('active'));">
         <i class="bi bi-x-lg"></i>

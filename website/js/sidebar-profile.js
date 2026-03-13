@@ -19,9 +19,10 @@
       avatarEl.textContent = initials;
       nameEl.textContent   = userName  || 'Admin';
       roleEl.textContent   = orgName   || role || 'Finance Controller';
+    } else {
+      window.location.href = 'login.html';
     }
-    // else: leave the fallback values already in the HTML
   } catch (_) {
-    // silent fail — static fallback remains
+    window.location.href = 'login.html';
   }
 })();

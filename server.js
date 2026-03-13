@@ -48,18 +48,7 @@ async function connectDB() {
     await db.collection('users').createIndex({ email: 1 }, { unique: true });
     await db.collection('users').createIndex({ username: 1 }, { unique: true });
 
-    // Seed default policies if empty
-    const policyCount = await db.collection('policies').countDocuments();
-    if (policyCount === 0) {
-      await db.collection('policies').insertMany([
-        { name: 'Budget Overrun Alert', desc: 'If spending exceeds 90% of budget → alert', active: true, type: 'alert', threshold: 90 },
-        { name: 'Large Purchase Approval', desc: 'If amount > ₹10,00,000 → require approval', active: true, type: 'approval', threshold: 1000000 },
-        { name: 'Spending Anomaly Detection', desc: 'If vendor cost increases > 30% → review', active: true, type: 'anomaly', threshold: 30 },
-        { name: 'Duplicate Transaction Check', desc: 'Similar transaction in 24h → verify', active: false, type: 'duplicate', threshold: 24 },
-        { name: 'Quarterly Budget Freeze', desc: '100% budget used → block transactions', active: false, type: 'freeze', threshold: 100 },
-      ]);
-      console.log('✓ Seeded default policies');
-    }
+    // Removed global policy seed; policies will be seeded on register or per org
   } catch (err) {
     console.error('✗ MongoDB connection failed:', err.message);
     console.log('  Make sure MongoDB is running: mongod');
@@ -92,7 +81,6 @@ app.post('/api/register', async (req, res) => {
     // Hash password
     const hash = await bcrypt.hash(password, 12);
 
-    // Create user
     const user = {
       orgName, userName, email, username,
       password: hash,
@@ -101,6 +89,15 @@ app.post('/api/register', async (req, res) => {
       createdAt: new Date()
     };
     await db.collection('users').insertOne(user);
+
+    // Seed default policies for this specific organization
+    await db.collection('policies').insertMany([
+      { orgName, name: 'Budget Overrun Alert', desc: 'If spending exceeds 90% of budget → alert', active: true, type: 'alert', threshold: 90 },
+      { orgName, name: 'Large Purchase Approval', desc: 'If amount > ₹10,00,000 → require approval', active: true, type: 'approval', threshold: 1000000 },
+      { orgName, name: 'Spending Anomaly Detection', desc: 'If vendor cost increases > 30% → review', active: true, type: 'anomaly', threshold: 30 },
+      { orgName, name: 'Duplicate Transaction Check', desc: 'Similar transaction in 24h → verify', active: false, type: 'duplicate', threshold: 24 },
+      { orgName, name: 'Quarterly Budget Freeze', desc: '100% budget used → block transactions', active: false, type: 'freeze', threshold: 100 },
+    ]);
 
     res.json({ success: true, username });
   } catch (err) {
@@ -170,6 +167,11 @@ app.get('/api/me', (req, res) => {
 
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
+    if (!req.session.userId) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -195,6 +197,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         // Add metadata
         normalized.uploadedAt = new Date();
         normalized.source = req.file.originalname;
+        normalized.orgName = req.session.orgName;
 
         results.push(normalized);
       })
@@ -207,6 +210,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
           for (const txn of results) {
             if (txn.amount > 1000000) {
               alerts.push({
+                orgName: req.session.orgName,
                 type: 'warning',
                 title: 'Large Purchase Detected',
                 desc: `${txn.vendor || 'Unknown'} — ₹${txn.amount.toLocaleString('en-IN')} by ${txn.department || 'Unknown'}`,
@@ -245,8 +249,9 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 // Get transactions
 app.get('/api/transactions', async (req, res) => {
   try {
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
     const transactions = await db.collection('transactions')
-      .find({})
+      .find({ orgName: req.session.orgName })
       .sort({ date: -1, uploadedAt: -1 })
       .limit(100)
       .toArray();
@@ -259,7 +264,8 @@ app.get('/api/transactions', async (req, res) => {
 // Get policies
 app.get('/api/policies', async (req, res) => {
   try {
-    const policies = await db.collection('policies').find({}).toArray();
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+    const policies = await db.collection('policies').find({ orgName: req.session.orgName }).toArray();
     res.json(policies);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -269,9 +275,10 @@ app.get('/api/policies', async (req, res) => {
 // Toggle policy
 app.patch('/api/policies/:id', async (req, res) => {
   try {
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
     const { active } = req.body;
     await db.collection('policies').updateOne(
-      { _id: new ObjectId(req.params.id) },
+      { _id: new ObjectId(req.params.id), orgName: req.session.orgName },
       { $set: { active } }
     );
     res.json({ success: true });
@@ -283,8 +290,9 @@ app.patch('/api/policies/:id', async (req, res) => {
 // Get alerts
 app.get('/api/alerts', async (req, res) => {
   try {
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
     const alerts = await db.collection('alerts')
-      .find({})
+      .find({ orgName: req.session.orgName })
       .sort({ createdAt: -1 })
       .limit(20)
       .toArray();
@@ -297,15 +305,20 @@ app.get('/api/alerts', async (req, res) => {
 // Dashboard stats
 app.get('/api/stats', async (req, res) => {
   try {
-    const totalTransactions = await db.collection('transactions').countDocuments();
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+    const orgQuery = { orgName: req.session.orgName };
+    const totalTransactions = await db.collection('transactions').countDocuments(orgQuery);
     const pipeline = [
+      { $match: orgQuery },
       { $group: { _id: null, totalSpend: { $sum: '$amount' } } }
     ];
     const spendResult = await db.collection('transactions').aggregate(pipeline).toArray();
     const totalSpend = spendResult[0]?.totalSpend || 0;
 
-    const deptCount = (await db.collection('transactions').distinct('department')).length;
-    const vendorCount = (await db.collection('transactions').distinct('vendor')).length;
+    const deptResult = await db.collection('transactions').aggregate([{ $match: orgQuery }, { $group: { _id: '$department' } }]).toArray();
+    const vendorResult = await db.collection('transactions').aggregate([{ $match: orgQuery }, { $group: { _id: '$vendor' } }]).toArray();
+    const deptCount = deptResult.length;
+    const vendorCount = vendorResult.length;
 
     res.json({
       totalSpend,
@@ -561,8 +574,9 @@ async function seedAuditLedger() {
 // ── GET /api/audit-ledger — Fetch all entries ──
 app.get('/api/audit-ledger', async (req, res) => {
   try {
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
     const entries = await db.collection('audit_ledger')
-      .find({}, { projection: { _id: 0 } })
+      .find({ orgName: req.session.orgName }, { projection: { _id: 0 } })
       .sort({ createdAt: -1 })
       .toArray();
     res.json({ success: true, entries, total: entries.length });
@@ -597,7 +611,8 @@ app.post('/api/audit-ledger', async (req, res) => {
       }).replace(',', ','),
       department, project, vendor, policy, action, approver, status,
       createdAt: new Date(),
-      source: 'manual'
+      source: 'manual',
+      orgName: req.session.orgName
     };
     entry.hash = computeLedgerHash(entry);
 
@@ -614,6 +629,11 @@ app.post('/api/audit-ledger', async (req, res) => {
 
 // ── POST /api/audit-ledger/upload — Bulk import from CSV ──
 app.post('/api/audit-ledger/upload', upload.single('file'), async (req, res) => {
+  if (!req.session.userId) {
+    if (req.file) fs.unlinkSync(req.file.path);
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No file uploaded' });
   }
@@ -666,7 +686,8 @@ app.post('/api/audit-ledger/upload', upload.single('file'), async (req, res) => 
         approver: approver || 'System',
         status: ['approved','blocked','triggered','override','pending'].includes(status) ? status : 'approved',
         createdAt: new Date(),
-        source: 'csv_upload'
+        source: 'csv_upload',
+        orgName: req.session.orgName
       };
       entry.hash = computeLedgerHash(entry);
       results.push(entry);
@@ -695,7 +716,8 @@ app.post('/api/audit-ledger/upload', upload.single('file'), async (req, res) => 
 // ── GET /api/audit-ledger/verify — Verify hash integrity ──
 app.get('/api/audit-ledger/verify', async (req, res) => {
   try {
-    const entries = await db.collection('audit_ledger').find({}).toArray();
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+    const entries = await db.collection('audit_ledger').find({ orgName: req.session.orgName }).toArray();
     let valid = 0, tampered = 0;
     const details = [];
 

@@ -459,6 +459,12 @@
       }
     }
   </style>
+
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
 </head>
 
 <body>
@@ -515,6 +521,7 @@
           </div>
         </div>
         <div class="dash-topnav-right">
+          <button id="themeToggleBtn" class="dash-icon-btn" aria-label="Toggle Theme"><i class="bi bi-moon"></i></button>
           <button class="dash-icon-btn" title="Notifications"><i class="bi bi-bell"></i><span
               class="notif-dot"></span></button>
           <a href="index.html" class="dash-icon-btn" title="Home"><i class="bi bi-house"></i></a>
@@ -1071,6 +1078,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/erp.js"></script>
+
+  <script src="js/theme.js"></script>
 </body>
 
 </html>

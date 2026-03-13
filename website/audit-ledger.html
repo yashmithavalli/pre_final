@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
   <link rel="stylesheet" href="css/audit-ledger.css" />
+
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
 </head>
 
 <body>
@@ -67,6 +73,7 @@
           </div>
         </div>
         <div class="dash-topnav-right">
+          <button id="themeToggleBtn" class="dash-icon-btn" aria-label="Toggle Theme"><i class="bi bi-moon"></i></button>
           <div class="dash-search">
             <i class="bi bi-search"></i>
             <input type="text" placeholder="Search ledger..." />
@@ -341,6 +348,8 @@
   </div>
 
   <script src="js/audit-ledger.js"></script>
+
+  <script src="js/theme.js"></script>
 </body>
 
 </html>

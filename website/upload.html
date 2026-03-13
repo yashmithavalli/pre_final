@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Data Lake Connectors — Unified FinOps Platform</title>
+  <title>Data Ingestion — Unified FinOps Platform</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
@@ -24,7 +24,7 @@
         <a href="vendors.html" class="sidebar-item"><i class="bi bi-shop"></i> Vendors</a>
         <a href="ownership.html" class="sidebar-item"><i class="bi bi-diagram-3"></i> Spend Graph</a>
         <div class="sidebar-section-title">Data</div>
-        <a href="upload.html" class="sidebar-item active"><i class="bi bi-database-gear"></i> Data Lake</a>
+        <a href="upload.html" class="sidebar-item active"><i class="bi bi-database-gear"></i> Data Ingestion</a>
         <a href="erp.html" class="sidebar-item"><i class="bi bi-plug"></i> ERP Integration</a>
         <a href="reports.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
         <div class="sidebar-section-title">Governance</div>
@@ -52,7 +52,7 @@
         <div class="dash-topnav-left">
           <button class="dash-menu-btn" id="dashMenuBtn"><i class="bi bi-list"></i></button>
           <div class="dash-breadcrumb"><span>FinOps</span><i class="bi bi-chevron-right"></i><span
-              class="dash-breadcrumb-active">Data Lake Connectors</span></div>
+              class="dash-breadcrumb-active">Data Ingestion</span></div>
         </div>
         <div class="dash-topnav-right">
           <a href="index.html" class="dash-icon-btn" title="Home"><i class="bi bi-house"></i></a>
@@ -62,191 +62,246 @@
       <div class="dash-content">
         <div class="dash-page-header">
           <div>
-            <h1 class="dash-page-title">Data Lake Connectors</h1>
-            <p class="dash-page-subtitle">Aggregate fragmented financial data into a unified data lake</p>
+            <h1 class="dash-page-title">Data Ingestion</h1>
+            <p class="dash-page-subtitle">Ingest financial data from CSV files, ERP systems, cloud billing, or manual entry</p>
           </div>
         </div>
 
-        <!-- ── Connector Grid ──────────────────────────────── -->
-        <div class="dash-card" style="margin-bottom: 20px;">
-          <div class="connector-section-header">
-            <div class="connector-section-title">
-              <i class="bi bi-diagram-3"></i>
-              <h2>Integration Sources</h2>
+        <!-- ── Data Source Selector ──────────────────────────── -->
+        <div class="source-selector" id="sourceSelector">
+          <button class="source-tab active" data-target="section-csv" id="tabCsv">
+            <div class="source-tab-icon"><i class="bi bi-filetype-csv"></i></div>
+            <div class="source-tab-label">CSV Upload</div>
+            <div class="source-tab-desc">Upload spreadsheet files</div>
+          </button>
+          <button class="source-tab" data-target="section-erp" id="tabErp">
+            <div class="source-tab-icon"><i class="bi bi-plug"></i></div>
+            <div class="source-tab-label">ERP System</div>
+            <div class="source-tab-desc">Connect enterprise systems</div>
+          </button>
+          <button class="source-tab" data-target="section-cloud" id="tabCloud">
+            <div class="source-tab-icon"><i class="bi bi-cloud"></i></div>
+            <div class="source-tab-label">Cloud Billing</div>
+            <div class="source-tab-desc">Import cloud cost data</div>
+          </button>
+          <button class="source-tab" data-target="section-manual" id="tabManual">
+            <div class="source-tab-icon"><i class="bi bi-pencil-square"></i></div>
+            <div class="source-tab-label">Manual Entry</div>
+            <div class="source-tab-desc">Enter transactions manually</div>
+          </button>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- CSV UPLOAD SECTION                                -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="ingestion-section active" id="section-csv">
+          <div class="dash-card" style="margin-bottom: 20px;">
+            <div class="dash-card-header">
+              <div>
+                <div class="dash-card-title"><i class="bi bi-tag" style="color:var(--blue);margin-right:6px;"></i>Upload Metadata</div>
+                <div class="dash-card-subtitle">Optional metadata for this upload batch</div>
+              </div>
             </div>
-            <span class="connector-source-count"><i class="bi bi-check-circle-fill"></i> 3 of 7 connected</span>
+            <div class="ingestion-form-grid">
+              <div class="form-group">
+                <label class="form-label" for="csvDataSourceName">Data Source Name</label>
+                <input type="text" class="form-input" id="csvDataSourceName" placeholder="e.g. Q1 Finance Export">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="csvDepartment">Department</label>
+                <input type="text" class="form-input" id="csvDepartment" placeholder="e.g. Finance">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="csvCostCenter">Cost Center</label>
+                <input type="text" class="form-input" id="csvCostCenter" placeholder="e.g. CC-4200">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="csvProjectId">Project ID</label>
+                <input type="text" class="form-input" id="csvProjectId" placeholder="e.g. PRJ-0012">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="csvUploadDate">Upload Date</label>
+                <input type="date" class="form-input" id="csvUploadDate">
+              </div>
+            </div>
           </div>
 
-          <div class="connector-grid">
-            <!-- SAP ERP — Connected -->
-            <div class="connector-card sap">
-              <div class="connector-card-top">
-                <div class="connector-logo sap"><i class="bi bi-box-seam"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">SAP ERP</div>
-                  <div class="connector-desc">Enterprise resource planning</div>
-                </div>
+          <!-- Existing CSV Upload Zone (preserved) -->
+          <div class="dash-card">
+            <div class="manual-upload-header">
+              <i class="bi bi-cloud-arrow-up" style="font-size: 18px; color: var(--text2);"></i>
+              <h3>File Upload</h3>
+              <span class="upload-chip">CSV / Excel</span>
+            </div>
+            <div class="upload-zone-compact" id="uploadZone">
+              <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden />
+              <div class="upload-icon-sm"><i class="bi bi-cloud-arrow-up"></i></div>
+              <div class="upload-text">
+                <div class="upload-text-title">Drag and drop your file here, or click to browse</div>
+                <div class="upload-text-hint">Supports CSV and Excel files — max 10 MB</div>
               </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-clock"></i> Synced 2 min ago</span>
-                <span class="connector-status connected"><span class="sync-dot green"></span> Connected</span>
+              <div class="upload-formats">
+                <span class="upload-format-chip"><i class="bi bi-filetype-csv"></i> CSV</span>
+                <span class="upload-format-chip"><i class="bi bi-filetype-xlsx"></i> Excel</span>
               </div>
             </div>
-
-            <!-- Oracle Financials — Syncing -->
-            <div class="connector-card oracle">
-              <div class="connector-card-top">
-                <div class="connector-logo oracle"><i class="bi bi-database"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">Oracle Financials</div>
-                  <div class="connector-desc">Financial management suite</div>
-                </div>
-              </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-arrow-repeat"></i> Pulling records…</span>
-                <span class="connector-status syncing"><span class="sync-dot blue"></span> Syncing live…</span>
-              </div>
-            </div>
-
-            <!-- AWS Billing API — Connected -->
-            <div class="connector-card aws">
-              <div class="connector-card-top">
-                <div class="connector-logo aws"><i class="bi bi-cloud"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">AWS Billing API</div>
-                  <div class="connector-desc">Cloud cost & usage reports</div>
-                </div>
-              </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-clock"></i> Synced 5 min ago</span>
-                <span class="connector-status connected"><span class="sync-dot green"></span> Connected</span>
-              </div>
-            </div>
-
-            <!-- Azure Cost Management — Syncing -->
-            <div class="connector-card azure">
-              <div class="connector-card-top">
-                <div class="connector-logo azure"><i class="bi bi-microsoft"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">Azure Cost Mgmt</div>
-                  <div class="connector-desc">Cloud spend analytics</div>
-                </div>
-              </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-arrow-repeat"></i> Ingesting data…</span>
-                <span class="connector-status syncing"><span class="sync-dot blue"></span> Syncing live…</span>
-              </div>
-            </div>
-
-            <!-- Procurement System — Disconnected -->
-            <div class="connector-card procure">
-              <div class="connector-card-top">
-                <div class="connector-logo procure"><i class="bi bi-cart4"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">Procurement System</div>
-                  <div class="connector-desc">Purchase orders & invoices</div>
-                </div>
-              </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-slash-circle"></i> Not connected</span>
-                <span class="connector-status disconnected"><i class="bi bi-plug"></i> Connect</span>
-              </div>
-            </div>
-
-            <!-- Corporate Credit Cards — Connected -->
-            <div class="connector-card credit">
-              <div class="connector-card-top">
-                <div class="connector-logo credit"><i class="bi bi-credit-card-2-front"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">Corporate Credit Cards</div>
-                  <div class="connector-desc">Employee card transactions</div>
-                </div>
-              </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-clock"></i> Synced 12 min ago</span>
-                <span class="connector-status connected"><span class="sync-dot green"></span> Connected</span>
-              </div>
-            </div>
-
-            <!-- TNEB Vendor Portal — Disconnected -->
-            <div class="connector-card tneb">
-              <div class="connector-card-top">
-                <div class="connector-logo tneb"><i class="bi bi-building"></i></div>
-                <div class="connector-info">
-                  <div class="connector-name">TNEB Vendor Portal</div>
-                  <div class="connector-desc">Utility bill payments</div>
-                </div>
-              </div>
-              <div class="connector-card-bottom">
-                <span class="connector-meta"><i class="bi bi-slash-circle"></i> Not connected</span>
-                <span class="connector-status disconnected"><i class="bi bi-plug"></i> Connect</span>
-              </div>
-            </div>
+            <div id="uploadStatus" style="display: none; margin-top: 16px;"></div>
           </div>
         </div>
 
-        <!-- ── Data Pipeline ───────────────────────────────── -->
-        <div class="dash-card" style="margin-bottom: 20px;">
-          <div class="dash-card-header">
-            <div>
-              <div class="dash-card-title">Data Pipeline</div>
-              <div class="dash-card-subtitle">How your data flows from connectors to insights</div>
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- ERP SYSTEM SECTION                                -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="ingestion-section" id="section-erp">
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div>
+                <div class="dash-card-title"><i class="bi bi-plug" style="color:var(--blue);margin-right:6px;"></i>ERP System Configuration</div>
+                <div class="dash-card-subtitle">Connect your enterprise resource planning system for automated data sync</div>
+              </div>
             </div>
-          </div>
-          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 8px 0;">
-            <div
-              style="padding: 8px 16px; background: var(--blue-light); border-radius: var(--r-sm); font-size: 12px; font-weight: 600; color: var(--blue);">
-              <i class="bi bi-plug"></i> Connectors
+            <div class="ingestion-form-grid">
+              <div class="form-group">
+                <label class="form-label" for="erpProvider">ERP Provider</label>
+                <select class="form-input" id="erpProvider">
+                  <option value="" disabled selected>Select provider…</option>
+                  <option value="sap">SAP</option>
+                  <option value="oracle">Oracle</option>
+                  <option value="dynamics">Microsoft Dynamics</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="erpEndpoint">API Endpoint</label>
+                <input type="url" class="form-input" id="erpEndpoint" placeholder="https://erp.company.com/api/v1">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="erpApiKey">API Key / Token</label>
+                <input type="password" class="form-input" id="erpApiKey" placeholder="Enter API key or token">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="erpOrgId">Organization ID</label>
+                <input type="text" class="form-input" id="erpOrgId" placeholder="e.g. ORG-12345">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="erpSyncFreq">Sync Frequency</label>
+                <select class="form-input" id="erpSyncFreq">
+                  <option value="manual">Manual</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                </select>
+              </div>
             </div>
-            <i class="bi bi-arrow-right" style="color: var(--border2);"></i>
-            <div
-              style="padding: 8px 16px; background: var(--green-light); border-radius: var(--r-sm); font-size: 12px; font-weight: 600; color: var(--green);">
-              <i class="bi bi-file-earmark-code"></i> Parse & Extract
-            </div>
-            <i class="bi bi-arrow-right" style="color: var(--border2);"></i>
-            <div
-              style="padding: 8px 16px; background: var(--yellow-light); border-radius: var(--r-sm); font-size: 12px; font-weight: 600; color: #B06D00;">
-              <i class="bi bi-check2-circle"></i> Validate & Clean
-            </div>
-            <i class="bi bi-arrow-right" style="color: var(--border2);"></i>
-            <div
-              style="padding: 8px 16px; background: var(--red-light); border-radius: var(--r-sm); font-size: 12px; font-weight: 600; color: var(--red);">
-              <i class="bi bi-funnel"></i> Normalize Schema
-            </div>
-            <i class="bi bi-arrow-right" style="color: var(--border2);"></i>
-            <div
-              style="padding: 8px 16px; background: var(--green-light); border-radius: var(--r-sm); font-size: 12px; font-weight: 600; color: var(--green);">
-              <i class="bi bi-database"></i> Unified Data Lake
-            </div>
-            <i class="bi bi-arrow-right" style="color: var(--border2);"></i>
-            <div
-              style="padding: 8px 16px; background: var(--blue-light); border-radius: var(--r-sm); font-size: 12px; font-weight: 600; color: var(--blue);">
-              <i class="bi bi-bar-chart-line"></i> AI Insights
+            <div class="ingestion-form-actions">
+              <button class="btn-secondary" id="erpTestBtn"><i class="bi bi-lightning"></i> Test Connection</button>
+              <button class="btn-primary" id="erpSyncBtn"><i class="bi bi-arrow-repeat"></i> Sync Data</button>
             </div>
           </div>
         </div>
 
-        <!-- ── Manual CSV Upload ───────────────────────────── -->
-        <div class="dash-card">
-          <div class="manual-upload-header">
-            <i class="bi bi-cloud-arrow-up" style="font-size: 18px; color: var(--text2);"></i>
-            <h3>Manual CSV Upload</h3>
-            <span class="upload-chip">Demo Data</span>
-          </div>
-          <div class="upload-zone-compact" id="uploadZone">
-            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden />
-            <div class="upload-icon-sm"><i class="bi bi-cloud-arrow-up"></i></div>
-            <div class="upload-text">
-              <div class="upload-text-title">Drag and drop your file here, or click to browse</div>
-              <div class="upload-text-hint">Supports CSV and Excel files — max 10 MB</div>
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- CLOUD BILLING SECTION                             -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="ingestion-section" id="section-cloud">
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div>
+                <div class="dash-card-title"><i class="bi bi-cloud" style="color:var(--blue);margin-right:6px;"></i>Cloud Billing Configuration</div>
+                <div class="dash-card-subtitle">Import billing and cost data from your cloud provider</div>
+              </div>
             </div>
-            <div class="upload-formats">
-              <span class="upload-format-chip"><i class="bi bi-filetype-csv"></i> CSV</span>
-              <span class="upload-format-chip"><i class="bi bi-filetype-xlsx"></i> Excel</span>
+            <div class="ingestion-form-grid">
+              <div class="form-group">
+                <label class="form-label" for="cloudProvider">Cloud Provider</label>
+                <select class="form-input" id="cloudProvider">
+                  <option value="" disabled selected>Select provider…</option>
+                  <option value="aws">AWS</option>
+                  <option value="azure">Azure</option>
+                  <option value="gcp">GCP</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cloudBillingId">Billing Account ID</label>
+                <input type="text" class="form-input" id="cloudBillingId" placeholder="e.g. 012345678901">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cloudAccessKey">Access Key</label>
+                <input type="text" class="form-input" id="cloudAccessKey" placeholder="Enter access key ID">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cloudSecretKey">Secret Key</label>
+                <input type="password" class="form-input" id="cloudSecretKey" placeholder="Enter secret access key">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cloudRegion">Region</label>
+                <input type="text" class="form-input" id="cloudRegion" placeholder="e.g. us-east-1">
+              </div>
+            </div>
+            <div class="ingestion-form-actions">
+              <button class="btn-primary" id="cloudImportBtn"><i class="bi bi-cloud-download"></i> Import Billing Data</button>
             </div>
           </div>
-          <div id="uploadStatus" style="display: none; margin-top: 16px;"></div>
         </div>
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- MANUAL ENTRY SECTION                              -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="ingestion-section" id="section-manual">
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div>
+                <div class="dash-card-title"><i class="bi bi-pencil-square" style="color:var(--blue);margin-right:6px;"></i>Manual Transaction Entry</div>
+                <div class="dash-card-subtitle">Manually enter individual financial transactions</div>
+              </div>
+            </div>
+            <div class="ingestion-form-grid">
+              <div class="form-group">
+                <label class="form-label" for="manualDate">Transaction Date</label>
+                <input type="date" class="form-input" id="manualDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="manualDept">Department</label>
+                <input type="text" class="form-input" id="manualDept" placeholder="e.g. Engineering">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="manualVendor">Vendor</label>
+                <input type="text" class="form-input" id="manualVendor" placeholder="e.g. Tata Consultancy Services">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="manualProject">Project</label>
+                <input type="text" class="form-input" id="manualProject" placeholder="e.g. Smart City Phase 2">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="manualCategory">Cost Category</label>
+                <input type="text" class="form-input" id="manualCategory" placeholder="e.g. Software Licensing">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="manualAmount">Amount (₹)</label>
+                <input type="number" class="form-input" id="manualAmount" placeholder="e.g. 250000" min="0" step="0.01">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="manualPayment">Payment Method</label>
+                <select class="form-input" id="manualPayment">
+                  <option value="" disabled selected>Select method…</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="credit_card">Credit Card</option>
+                  <option value="cheque">Cheque</option>
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label" for="manualNotes">Notes</label>
+                <textarea class="form-input" id="manualNotes" placeholder="Additional notes or remarks…" rows="3" style="resize: vertical;"></textarea>
+              </div>
+            </div>
+            <div class="ingestion-form-actions">
+              <button class="btn-primary" id="manualSubmitBtn"><i class="bi bi-check-lg"></i> Submit Transaction</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -254,41 +309,150 @@
   <script src="js/dashboard.js"></script>
   <script>
     (function () {
-      // Handle Connect button clicks
-      document.querySelectorAll('.connector-status.disconnected').forEach(btn => {
-        btn.style.cursor = 'pointer';
-        btn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          const card = this.closest('.connector-card');
-          const metaEl = card.querySelector('.connector-meta');
-          const statusEl = this;
+      // ── Source Tab Switching ───────────────────────────────
+      const tabs = document.querySelectorAll('.source-tab');
+      const sections = document.querySelectorAll('.ingestion-section');
 
-          // Step 1: Connecting...
-          statusEl.className = 'connector-status syncing';
-          statusEl.innerHTML = '<span class="sync-dot blue"></span> Connecting…';
-          metaEl.innerHTML = '<i class="bi bi-hourglass-split"></i> Authenticating…';
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+          const targetId = this.getAttribute('data-target');
 
-          // Step 2: Syncing (after 1.5s)
-          setTimeout(() => {
-            statusEl.innerHTML = '<span class="sync-dot blue"></span> Syncing live…';
-            metaEl.innerHTML = '<i class="bi bi-arrow-repeat"></i> Pulling records…';
-          }, 1500);
+          // Deactivate all tabs and sections
+          tabs.forEach(t => t.classList.remove('active'));
+          sections.forEach(s => s.classList.remove('active'));
 
-          // Step 3: Connected (after 3s)
-          setTimeout(() => {
-            statusEl.className = 'connector-status connected';
-            statusEl.innerHTML = '<span class="sync-dot green"></span> Connected';
-            metaEl.innerHTML = '<i class="bi bi-clock"></i> Synced just now';
-
-            // Update count badge
-            const count = document.querySelectorAll('.connector-status.connected').length;
-            const badge = document.querySelector('.connector-source-count');
-            if (badge) badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> ' + count + ' of 7 connected';
-          }, 3000);
+          // Activate clicked tab and target section
+          this.classList.add('active');
+          document.getElementById(targetId).classList.add('active');
         });
+      });
+
+      // ── CSV Upload (existing behavior) ────────────────────
+      const uploadZone = document.getElementById('uploadZone');
+      const fileInput = document.getElementById('fileInput');
+      const uploadStatus = document.getElementById('uploadStatus');
+
+      if (uploadZone && fileInput) {
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', e => {
+          e.preventDefault();
+          uploadZone.classList.add('drag-over');
+        });
+        uploadZone.addEventListener('dragleave', () => {
+          uploadZone.classList.remove('drag-over');
+        });
+        uploadZone.addEventListener('drop', e => {
+          e.preventDefault();
+          uploadZone.classList.remove('drag-over');
+          if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleUpload(fileInput.files[0]);
+          }
+        });
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files.length) handleUpload(fileInput.files[0]);
+        });
+      }
+
+      function handleUpload(file) {
+        if (!uploadStatus) return;
+        uploadStatus.style.display = 'block';
+        uploadStatus.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--blue-light);border-radius:var(--r-sm);color:var(--blue);font-size:13px;font-weight:600;">
+            <i class="bi bi-arrow-repeat" style="animation:spin 1s linear infinite;"></i>
+            Uploading ${file.name}…
+          </div>`;
+
+        const fd = new FormData();
+        fd.append('file', file);
+
+        fetch('/api/upload', { method: 'POST', body: fd })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              uploadStatus.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--green-light);border-radius:var(--r-sm);color:var(--green);font-size:13px;font-weight:600;">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Successfully uploaded ${data.records} records${data.alerts ? ' (' + data.alerts + ' alerts)' : ''}
+                </div>`;
+            } else {
+              uploadStatus.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--red-light);border-radius:var(--r-sm);color:var(--red);font-size:13px;font-weight:600;">
+                  <i class="bi bi-x-circle-fill"></i>
+                  ${data.error || 'Upload failed'}
+                </div>`;
+            }
+          })
+          .catch(() => {
+            uploadStatus.innerHTML = `
+              <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--red-light);border-radius:var(--r-sm);color:var(--red);font-size:13px;font-weight:600;">
+                <i class="bi bi-x-circle-fill"></i>
+                Network error — check server connection
+              </div>`;
+          });
+      }
+
+      // ── ERP System Buttons ────────────────────────────────
+      document.getElementById('erpTestBtn').addEventListener('click', () => {
+        const config = {
+          provider: document.getElementById('erpProvider').value,
+          endpoint: document.getElementById('erpEndpoint').value,
+          apiKey: document.getElementById('erpApiKey').value ? '••••••' : '(empty)',
+          orgId: document.getElementById('erpOrgId').value,
+          syncFreq: document.getElementById('erpSyncFreq').value
+        };
+        console.log('[ERP] Test Connection requested:', config);
+        alert('Test Connection logged to console. Backend integration pending.');
+      });
+
+      document.getElementById('erpSyncBtn').addEventListener('click', () => {
+        const config = {
+          provider: document.getElementById('erpProvider').value,
+          endpoint: document.getElementById('erpEndpoint').value,
+          orgId: document.getElementById('erpOrgId').value,
+          syncFreq: document.getElementById('erpSyncFreq').value
+        };
+        console.log('[ERP] Sync Data requested:', config);
+        alert('Sync Data logged to console. Backend integration pending.');
+      });
+
+      // ── Cloud Billing Button ──────────────────────────────
+      document.getElementById('cloudImportBtn').addEventListener('click', () => {
+        const config = {
+          provider: document.getElementById('cloudProvider').value,
+          billingId: document.getElementById('cloudBillingId').value,
+          accessKey: document.getElementById('cloudAccessKey').value ? '••••••' : '(empty)',
+          secretKey: document.getElementById('cloudSecretKey').value ? '••••••' : '(empty)',
+          region: document.getElementById('cloudRegion').value
+        };
+        console.log('[Cloud Billing] Import requested:', config);
+        alert('Import Billing Data logged to console. Backend integration pending.');
+      });
+
+      // ── Manual Entry Button ───────────────────────────────
+      document.getElementById('manualSubmitBtn').addEventListener('click', () => {
+        const txn = {
+          date: document.getElementById('manualDate').value,
+          department: document.getElementById('manualDept').value,
+          vendor: document.getElementById('manualVendor').value,
+          project: document.getElementById('manualProject').value,
+          category: document.getElementById('manualCategory').value,
+          amount: document.getElementById('manualAmount').value,
+          paymentMethod: document.getElementById('manualPayment').value,
+          notes: document.getElementById('manualNotes').value
+        };
+        console.log('[Manual Entry] Transaction submitted:', txn);
+        alert('Transaction logged to console. Backend integration pending.');
       });
     })();
   </script>
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+  </style>
 </body>
 
 </html>

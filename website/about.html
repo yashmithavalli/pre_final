@@ -9,6 +9,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
   <link rel="stylesheet" href="css/style.css" />
+
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
 </head>
 <body>
 
@@ -27,6 +33,8 @@
       <a href="login.html" class="nav-link">Login</a>
       <a href="register.html" class="nav-cta"><i class="bi bi-arrow-right-circle"></i> Get Started</a>
     </div>
+    
+    <button id="themeToggleBtn" class="nav-menu-btn" aria-label="Toggle Theme" style="display:flex;margin-left:auto;margin-right:16px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--text);"><i class="bi bi-moon"></i></button>
     <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
       <i class="bi bi-list"></i>
     </button>
@@ -136,5 +144,7 @@
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script src="js/main.js"></script>
+
+  <script src="js/theme.js"></script>
 </body>
 </html>

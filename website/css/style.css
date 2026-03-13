@@ -43,6 +43,25 @@
   --r-xs: 4px;
 
   --nav-h: 64px;
+}  
+
+/* Dark Mode Overrides */
+:root.dark-mode {
+  --bg:      #121212;
+  --bg2:     #1E1E1E;
+  --bg3:     #2D2D2D;
+  --card:    #1E1E1E;
+  --border:  #333333;
+  --border2: #444444;
+
+  --text:    #E8EAED;
+  --text2:   #9AA0A6;
+  --text3:   #5F6368;
+
+  --blue-light: rgba(66, 133, 244, 0.15);
+  --green-light: rgba(52, 168, 83, 0.15);
+  --yellow-light: rgba(251, 188, 5, 0.15);
+  --red-light: rgba(234, 67, 53, 0.15);
 }
 
 /* ── Reset ──────────────────────────────────────────────── */

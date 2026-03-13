@@ -10,6 +10,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
+
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
 </head>
 
 <body>
@@ -67,6 +73,7 @@
           </div>
         </div>
         <div class="dash-topnav-right">
+          <button id="themeToggleBtn" class="dash-icon-btn" aria-label="Toggle Theme"><i class="bi bi-moon"></i></button>
           <div class="dash-search">
             <i class="bi bi-search"></i>
             <input type="text" placeholder="Search projects..." />
@@ -207,6 +214,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/sidebar-profile.js"></script>
   <script src="js/dashboard.js"></script>
+
+  <script src="js/theme.js"></script>
 </body>
 
 </html>

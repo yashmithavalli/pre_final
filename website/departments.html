@@ -66,79 +66,11 @@
           </div>
         </div>
 
-        <!-- Department Cards -->
-        <div class="kpi-grid" style="margin-bottom: 24px;">
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: var(--blue-light); color: var(--blue);"><i
-                  class="bi bi-signpost-2"></i></div>
-              <div class="kpi-change down"><i class="bi bi-arrow-down-short"></i> 84%</div>
-            </div>
-            <div class="kpi-value">₹3.4 Cr</div>
-            <div class="kpi-label">Highways Department</div>
-            <div style="margin-top: 10px;">
-              <div class="progress-bar-track">
-                <div class="progress-bar-fill" style="width: 84%; background: var(--blue);"></div>
-              </div>
-              <div
-                style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: var(--text3);">
-                <span>Budget: ₹4.1 Cr</span><span>84% used</span>
-              </div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: var(--green-light); color: var(--green);"><i
-                  class="bi bi-lightning-charge"></i></div>
-              <div class="kpi-change down"><i class="bi bi-arrow-down-short"></i> 93%</div>
-            </div>
-            <div class="kpi-value">₹2.3 Cr</div>
-            <div class="kpi-label">TNEB</div>
-            <div style="margin-top: 10px;">
-              <div class="progress-bar-track">
-                <div class="progress-bar-fill" style="width: 93%; background: var(--red);"></div>
-              </div>
-              <div
-                style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: var(--text3);">
-                <span>Budget: ₹2.5 Cr</span><span>93% used</span>
-              </div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: var(--yellow-light); color: #B06D00;"><i
-                  class="bi bi-buildings"></i></div>
-              <div class="kpi-change up"><i class="bi bi-arrow-up-short"></i> 75%</div>
-            </div>
-            <div class="kpi-value">₹1.2 Cr</div>
-            <div class="kpi-label">TIDCO</div>
-            <div style="margin-top: 10px;">
-              <div class="progress-bar-track">
-                <div class="progress-bar-fill" style="width: 75%; background: var(--green);"></div>
-              </div>
-              <div
-                style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: var(--text3);">
-                <span>Budget: ₹1.6 Cr</span><span>75% used</span>
-              </div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: var(--red-light); color: var(--red);"><i
-                  class="bi bi-train-front"></i></div>
-              <div class="kpi-change down"><i class="bi bi-arrow-down-short"></i> 92%</div>
-            </div>
-            <div class="kpi-value">₹1.9 Cr</div>
-            <div class="kpi-label">Chennai Metro Rail</div>
-            <div style="margin-top: 10px;">
-              <div class="progress-bar-track">
-                <div class="progress-bar-fill" style="width: 92%; background: var(--yellow);"></div>
-              </div>
-              <div
-                style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: var(--text3);">
-                <span>Budget: ₹2.1 Cr</span><span>92% used</span>
-              </div>
-            </div>
+        <!-- Department Cards — populated by dashboard.js from /api/transactions -->
+        <div class="kpi-grid" id="deptKpiGrid" style="margin-bottom: 24px;">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);">
+            <i class="bi bi-hourglass-split" style="font-size:24px;opacity:0.5;"></i>
+            <div style="margin-top:8px;">Loading department data...</div>
           </div>
         </div>
 
@@ -147,8 +79,8 @@
           <div class="dash-card">
             <div class="dash-card-header">
               <div>
-                <div class="dash-card-title">Budget vs Actual Spending</div>
-                <div class="dash-card-subtitle">All departments</div>
+                <div class="dash-card-title">Spend by Department</div>
+                <div class="dash-card-subtitle">All departments from uploaded data</div>
               </div>
             </div>
             <div class="chart-wrap"><canvas id="deptSpendChart"></canvas></div>
@@ -160,58 +92,28 @@
           <div class="dash-card-header">
             <div>
               <div class="dash-card-title">Department Details</div>
-              <div class="dash-card-subtitle">Projects and vendors per department</div>
+              <div class="dash-card-subtitle">Aggregated from uploaded transactions</div>
             </div>
           </div>
           <table class="data-table">
             <thead>
               <tr>
                 <th>Department</th>
-                <th>Budget Limit</th>
                 <th>Total Spend</th>
-                <th>Utilization</th>
-                <th>Projects</th>
+                <th>Transactions</th>
+                <th>Vendors</th>
                 <th>Top Vendors</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><strong>Highways Department</strong></td>
-                <td>₹4,10,00,000</td>
-                <td>₹3,42,00,000</td>
-                <td><span class="status-badge active">84%</span></td>
-                <td>NH Road Expansion, Flyover Construction, Smart Traffic System</td>
-                <td>L&T Infra, BHEL, ELCOT</td>
-              </tr>
-              <tr>
-                <td><strong>TNEB</strong></td>
-                <td>₹2,50,00,000</td>
-                <td>₹2,28,00,000</td>
-                <td><span class="status-badge flagged">93%</span></td>
-                <td>Power Grid Upgrade, Thermal Plant Overhaul</td>
-                <td>BHEL, TANGEDCO, Siemens</td>
-              </tr>
-              <tr>
-                <td><strong>TIDCO</strong></td>
-                <td>₹1,60,00,000</td>
-                <td>₹1,22,00,000</td>
-                <td><span class="status-badge approved">75%</span></td>
-                <td>FinTech City Project, Industrial Park</td>
-                <td>ELCOT, TCS</td>
-              </tr>
-              <tr>
-                <td><strong>Chennai Metro Rail</strong></td>
-                <td>₹2,10,00,000</td>
-                <td>₹1,88,00,000</td>
-                <td><span class="status-badge pending">92%</span></td>
-                <td>Station Infrastructure, CMRL Phase-II</td>
-                <td>Local Contractor XYZ, ELCOT</td>
-              </tr>
+            <tbody id="deptTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3);">Loading...</td></tr>
             </tbody>
           </table>
         </div>
+
       </div>
     </main>
+
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/sidebar-profile.js"></script>

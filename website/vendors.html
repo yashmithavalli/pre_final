@@ -66,42 +66,11 @@
           </div>
         </div>
 
-        <!-- Top Vendors KPIs -->
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: #FFF3E0; color: #FF9900;"><i class="bi bi-truck"></i></div>
-              <div class="kpi-change up"><i class="bi bi-arrow-up-short"></i> 15%</div>
-            </div>
-            <div class="kpi-value">₹9.8 Cr</div>
-            <div class="kpi-label">L&T Infra</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: #E3F2FD; color: #00A4EF;"><i
-                  class="bi bi-gear-wide-connected"></i></div>
-              <div class="kpi-change up"><i class="bi bi-arrow-up-short"></i> 8%</div>
-            </div>
-            <div class="kpi-value">₹6.9 Cr</div>
-            <div class="kpi-label">BHEL</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: var(--blue-light); color: var(--blue);"><i class="bi bi-cpu"></i>
-              </div>
-              <div class="kpi-change up"><i class="bi bi-arrow-up-short"></i> 12%</div>
-            </div>
-            <div class="kpi-value">₹5.5 Cr</div>
-            <div class="kpi-label">ELCOT</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon" style="background: #E8EAF6; color: #007DB8;"><i class="bi bi-person-vcard"></i>
-              </div>
-              <div class="kpi-change down"><i class="bi bi-arrow-down-short"></i> 5%</div>
-            </div>
-            <div class="kpi-value">₹3.7 Cr</div>
-            <div class="kpi-label">Local Contractor XYZ</div>
+        <!-- Top Vendors KPIs — populated by dashboard.js from /api/transactions -->
+        <div class="kpi-grid" id="vendorKpiGrid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);">
+            <i class="bi bi-hourglass-split" style="font-size:24px;opacity:0.5;"></i>
+            <div style="margin-top:8px;">Loading vendor data...</div>
           </div>
         </div>
 
@@ -110,20 +79,20 @@
           <div class="dash-card">
             <div class="dash-card-header">
               <div>
-                <div class="dash-card-title">Monthly Vendor Cost Trend</div>
-                <div class="dash-card-subtitle">Last 6 months</div>
+                <div class="dash-card-title">Vendor Spend Trend</div>
+                <div class="dash-card-subtitle">Top vendors by month (from uploaded data)</div>
               </div>
             </div>
             <div class="chart-wrap"><canvas id="vendorTrendChart"></canvas></div>
           </div>
         </div>
 
-        <!-- Department-wise Vendor Usage Table -->
+        <!-- Vendor Usage Table -->
         <div class="dash-card">
           <div class="dash-card-header">
             <div>
-              <div class="dash-card-title">Department-wise Vendor Usage</div>
-              <div class="dash-card-subtitle">Which departments use which vendors</div>
+              <div class="dash-card-title">Vendor Summary</div>
+              <div class="dash-card-subtitle">Aggregated from uploaded transactions</div>
             </div>
           </div>
           <table class="data-table">
@@ -132,57 +101,19 @@
                 <th>Vendor</th>
                 <th>Total Spend</th>
                 <th>Transactions</th>
-                <th>Primary Dept</th>
-                <th>Other Depts</th>
-                <th>Trend</th>
+                <th>Departments</th>
+                <th>Share</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><strong>L&T Infra</strong></td>
-                <td>₹9,80,00,000</td>
-                <td>45</td>
-                <td>Highways Dept</td>
-                <td>TN Transport Corp, Chennai Metro Rail</td>
-                <td><span class="status-badge flagged">↑ 15%</span></td>
-              </tr>
-              <tr>
-                <td><strong>BHEL</strong></td>
-                <td>₹6,90,00,000</td>
-                <td>32</td>
-                <td>Highways Dept</td>
-                <td>Chennai Metro Rail, TIDCO</td>
-                <td><span class="status-badge active">↑ 8%</span></td>
-              </tr>
-              <tr>
-                <td><strong>ELCOT</strong></td>
-                <td>₹5,50,00,000</td>
-                <td>28</td>
-                <td>Highways Dept</td>
-                <td>TNEB</td>
-                <td><span class="status-badge active">↑ 12%</span></td>
-              </tr>
-              <tr>
-                <td><strong>Local Contractor XYZ</strong></td>
-                <td>₹3,70,00,000</td>
-                <td>12</td>
-                <td>Chennai Metro Rail</td>
-                <td>TIDCO, Highways Dept</td>
-                <td><span class="status-badge approved">↓ 5%</span></td>
-              </tr>
-              <tr>
-                <td><strong>Ashok Leyland</strong></td>
-                <td>₹2,60,00,000</td>
-                <td>8</td>
-                <td>TN Transport Corp</td>
-                <td>—</td>
-                <td><span class="status-badge pending">→ 0%</span></td>
-              </tr>
+            <tbody id="vendorTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3);">Loading...</td></tr>
             </tbody>
           </table>
         </div>
+
       </div>
     </main>
+
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/sidebar-profile.js"></script>

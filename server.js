@@ -364,6 +364,32 @@ app.get('/api/policies', async (req, res) => {
   }
 });
 
+// Create policy
+app.post('/api/policies', async (req, res) => {
+  try {
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+    const policy = {
+      orgName: req.session.orgName,
+      name: req.body.name,
+      desc: req.body.desc,
+      cond: req.body.cond,
+      action: req.body.action,
+      icon: req.body.icon,
+      color: req.body.color,
+      active: req.body.status !== 'paused',
+      status: req.body.status,
+      type: 'custom',
+      createdAt: new Date()
+    };
+    const result = await db.collection('policies').insertOne(policy);
+    policy._id = result.insertedId;
+    res.json({ success: true, policy });
+  } catch (err) {
+    console.error('Create policy error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Toggle policy
 app.patch('/api/policies/:id', async (req, res) => {
   try {

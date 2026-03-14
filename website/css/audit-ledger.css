@@ -283,12 +283,14 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ledger-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 1100px;
 }
 
 .ledger-table th {
@@ -563,14 +565,6 @@
 
   .ledger-filter-count {
     margin-left: 0;
-  }
-
-  .ledger-table-wrap {
-    overflow-x: auto;
-  }
-
-  .ledger-table {
-    min-width: 900px;
   }
 }
 

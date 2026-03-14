@@ -40,7 +40,7 @@
         <a href="anomaly.html" class="sidebar-item"><i class="bi bi-robot"></i> AI Anomaly</a>
         <a href="audit-ledger.html" class="sidebar-item"><i class="bi bi-journal-bookmark"></i> Audit Ledger</a>
         <a href="policies.html#events" class="sidebar-item"><i class="bi bi-bell"></i> Alerts <span
-            class="badge">3</span></a>
+            class="badge" id="alertCountBadge">0</span></a>
 
 
       </nav>
@@ -86,7 +86,7 @@
             <div class="pe-kpi-icon" style="background: var(--green-light); color: var(--green);"><i
                 class="bi bi-check-circle"></i></div>
             <div>
-              <div class="pe-kpi-value" id="kpiActive">3</div>
+              <div class="pe-kpi-value" id="kpiActive">0</div>
               <div class="pe-kpi-label">Active Policies</div>
             </div>
           </div>
@@ -94,7 +94,7 @@
             <div class="pe-kpi-icon" style="background: var(--red-light); color: var(--red);"><i
                 class="bi bi-exclamation-octagon"></i></div>
             <div>
-              <div class="pe-kpi-value" id="kpiTriggered">1</div>
+              <div class="pe-kpi-value" id="kpiTriggered">0</div>
               <div class="pe-kpi-label">Triggered</div>
             </div>
           </div>
@@ -102,7 +102,7 @@
             <div class="pe-kpi-icon" style="background: var(--yellow-light); color: #B06D00;"><i
                 class="bi bi-exclamation-triangle"></i></div>
             <div>
-              <div class="pe-kpi-value" id="kpiWarning">1</div>
+              <div class="pe-kpi-value" id="kpiWarning">0</div>
               <div class="pe-kpi-label">Warnings</div>
             </div>
           </div>
@@ -110,7 +110,7 @@
             <div class="pe-kpi-icon" style="background: var(--blue-light); color: var(--blue);"><i
                 class="bi bi-shield-lock"></i></div>
             <div>
-              <div class="pe-kpi-value">5</div>
+              <div class="pe-kpi-value" id="kpiTotal">0</div>
               <div class="pe-kpi-label">Total Rules</div>
             </div>
           </div>
@@ -129,196 +129,11 @@
           <div class="fi-ai-badge"><i class="bi bi-cpu"></i> AUTOMATED</div>
         </div>
 
-        <div class="pe-grid">
-
-          <!-- Policy 1: Department Budget Limit -->
-          <div class="pe-card" data-status="triggered">
-            <div class="pe-card-accent" style="background: var(--red);"></div>
-            <div class="pe-card-body">
-              <div class="pe-card-header">
-                <div>
-                  <div class="pe-card-title-row">
-                    <div class="pe-card-icon" style="background: var(--red-light); color: var(--red);"><i
-                        class="bi bi-wallet2"></i></div>
-                    <div class="pe-card-name">Department Budget Limit</div>
-                  </div>
-                  <div class="pe-card-desc">Automatically enforce department spending caps and trigger approval
-                    workflows when budgets are exceeded.</div>
-                </div>
-                <label class="pe-toggle">
-                  <input type="checkbox" checked />
-                  <div class="pe-toggle-track"></div>
-                  <div class="pe-toggle-thumb"></div>
-                </label>
-              </div>
-              <div class="pe-rule-block">
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
-                  Department spending exceeds allocated budget
-                </div>
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
-                  Trigger approval request &amp; notify finance team
-                </div>
-              </div>
-              <div class="pe-card-footer">
-                <span class="pe-status triggered"><i class="bi bi-exclamation-circle-fill"></i> Triggered</span>
-                <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-clock"></i> TNEB — 2h ago</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Policy 2: Vendor Approval Policy -->
-          <div class="pe-card" data-status="active">
-            <div class="pe-card-accent" style="background: var(--green);"></div>
-            <div class="pe-card-body">
-              <div class="pe-card-header">
-                <div>
-                  <div class="pe-card-title-row">
-                    <div class="pe-card-icon" style="background: var(--green-light); color: var(--green);"><i
-                        class="bi bi-person-check"></i></div>
-                    <div class="pe-card-name">Vendor Approval Policy</div>
-                  </div>
-                  <div class="pe-card-desc">Block unapproved vendor transactions and require finance team sign-off
-                    before processing.</div>
-                </div>
-                <label class="pe-toggle">
-                  <input type="checkbox" checked />
-                  <div class="pe-toggle-track"></div>
-                  <div class="pe-toggle-thumb"></div>
-                </label>
-              </div>
-              <div class="pe-rule-block">
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
-                  Vendor is not in the approved vendor list
-                </div>
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
-                  Block transaction &amp; require finance approval
-                </div>
-              </div>
-              <div class="pe-card-footer">
-                <span class="pe-status active"><i class="bi bi-check-circle-fill"></i> Active</span>
-                <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-activity"></i> 3 blocked this
-                  month</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Policy 3: Duplicate Tool Detection -->
-          <div class="pe-card" data-status="warning">
-            <div class="pe-card-accent" style="background: var(--yellow);"></div>
-            <div class="pe-card-body">
-              <div class="pe-card-header">
-                <div>
-                  <div class="pe-card-title-row">
-                    <div class="pe-card-icon" style="background: var(--yellow-light); color: #B06D00;"><i
-                        class="bi bi-layers"></i></div>
-                    <div class="pe-card-name">Duplicate SaaS Detection</div>
-                  </div>
-                  <div class="pe-card-desc">Identify duplicate software subscriptions across departments and recommend
-                    consolidation.</div>
-                </div>
-                <label class="pe-toggle">
-                  <input type="checkbox" checked />
-                  <div class="pe-toggle-track"></div>
-                  <div class="pe-toggle-thumb"></div>
-                </label>
-              </div>
-              <div class="pe-rule-block">
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
-                  Multiple SaaS tools with similar functionality across departments
-                </div>
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
-                  Alert finance team &amp; suggest tool consolidation
-                </div>
-              </div>
-              <div class="pe-card-footer">
-                <span class="pe-status warning"><i class="bi bi-exclamation-triangle-fill"></i> Warning</span>
-                <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-eye"></i> 2 duplicates found</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Policy 4: Unused SaaS License Detection -->
-          <div class="pe-card" data-status="active">
-            <div class="pe-card-accent" style="background: var(--blue);"></div>
-            <div class="pe-card-body">
-              <div class="pe-card-header">
-                <div>
-                  <div class="pe-card-title-row">
-                    <div class="pe-card-icon" style="background: var(--blue-light); color: var(--blue);"><i
-                        class="bi bi-clock-history"></i></div>
-                    <div class="pe-card-name">Unused License Detection</div>
-                  </div>
-                  <div class="pe-card-desc">Monitor SaaS licenses for inactivity and recommend cancellation to reduce
-                    wasted spend.</div>
-                </div>
-                <label class="pe-toggle">
-                  <input type="checkbox" checked />
-                  <div class="pe-toggle-track"></div>
-                  <div class="pe-toggle-thumb"></div>
-                </label>
-              </div>
-              <div class="pe-rule-block">
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
-                  SaaS license inactive for more than 30 days
-                </div>
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
-                  Recommend cancellation or reduce license count
-                </div>
-              </div>
-              <div class="pe-card-footer">
-                <span class="pe-status active"><i class="bi bi-check-circle-fill"></i> Active</span>
-                <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-currency-rupee"></i> ₹4.2L saved
-                  this quarter</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Policy 5: Abnormal Spend Detection -->
-          <div class="pe-card" data-status="active">
-            <div class="pe-card-accent" style="background: #6C63FF;"></div>
-            <div class="pe-card-body">
-              <div class="pe-card-header">
-                <div>
-                  <div class="pe-card-title-row">
-                    <div class="pe-card-icon" style="background: #EDE7F6; color: #6C63FF;"><i
-                        class="bi bi-graph-up-arrow"></i></div>
-                    <div class="pe-card-name">Abnormal Spend Detection</div>
-                  </div>
-                  <div class="pe-card-desc">AI-powered anomaly detection flags spending patterns that deviate
-                    significantly from historical averages.</div>
-                </div>
-                <label class="pe-toggle">
-                  <input type="checkbox" checked />
-                  <div class="pe-toggle-track"></div>
-                  <div class="pe-toggle-thumb"></div>
-                </label>
-              </div>
-              <div class="pe-rule-block">
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
-                  Current spending significantly exceeds historical average (30%+)
-                </div>
-                <div class="pe-rule-row">
-                  <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
-                  Trigger anomaly alert &amp; flag for review
-                </div>
-              </div>
-              <div class="pe-card-footer">
-                <span class="pe-status active"><i class="bi bi-check-circle-fill"></i> Active</span>
-                <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-lightning"></i> 1 anomaly this
-                  week</span>
-              </div>
-            </div>
-          </div>
-
+        <div class="pe-grid" id="policyGrid">
+           <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text3);">
+               <div class="spinner"></div>
+               <div>Loading policies...</div>
+           </div>
         </div>
 
         <!-- ── Recent Policy Events ────────────────────────── -->
@@ -328,71 +143,11 @@
             <div class="fi-ai-badge"><i class="bi bi-broadcast"></i> LIVE</div>
           </div>
 
-          <div class="pe-events-list">
-            <div class="pe-event">
-              <div class="pe-event-sev critical"></div>
-              <div class="pe-event-content">
-                <div class="pe-event-title">Budget Limit Triggered — TNEB Department</div>
-                <div class="pe-event-desc">TNEB has used 93% of ₹2.5 Cr budget. Approval request sent to Finance
-                  Controller for remaining expenditures.</div>
-              </div>
-              <div class="pe-event-meta">
-                <div class="pe-event-time"><i class="bi bi-clock"></i> 2 hours ago</div>
-                <span class="pe-status triggered" style="font-size: 9px; padding: 2px 8px;">Triggered</span>
-              </div>
-            </div>
-
-            <div class="pe-event">
-              <div class="pe-event-sev warning"></div>
-              <div class="pe-event-content">
-                <div class="pe-event-title">Duplicate SaaS Detected — Project Management Tools</div>
-                <div class="pe-event-desc">Highways Dept uses Jira, TIDCO uses Asana. Consolidation could save ₹1.8L/yr.
-                </div>
-              </div>
-              <div class="pe-event-meta">
-                <div class="pe-event-time"><i class="bi bi-clock"></i> 6 hours ago</div>
-                <span class="pe-status warning" style="font-size: 9px; padding: 2px 8px;">Warning</span>
-              </div>
-            </div>
-
-            <div class="pe-event">
-              <div class="pe-event-sev warning"></div>
-              <div class="pe-event-content">
-                <div class="pe-event-title">Abnormal Spend — L&T Infra Costs Spiked</div>
-                <div class="pe-event-desc">Highways Dept: L&T monthly invoice ₹48L vs historical avg ₹32L — 50% increase
-                  flagged.</div>
-              </div>
-              <div class="pe-event-meta">
-                <div class="pe-event-time"><i class="bi bi-clock"></i> 1 day ago</div>
-                <span class="pe-status warning" style="font-size: 9px; padding: 2px 8px;">Review</span>
-              </div>
-            </div>
-
-            <div class="pe-event">
-              <div class="pe-event-sev info"></div>
-              <div class="pe-event-content">
-                <div class="pe-event-title">Vendor Blocked — Unapproved Contractor</div>
-                <div class="pe-event-desc">Transaction ₹18.5L from "Local Contractor XYZ" blocked. Requires finance
-                  approval for Chennai Metro Rail.</div>
-              </div>
-              <div class="pe-event-meta">
-                <div class="pe-event-time"><i class="bi bi-clock"></i> 2 days ago</div>
-                <span class="pe-status active" style="font-size: 9px; padding: 2px 8px;">Enforced</span>
-              </div>
-            </div>
-
-            <div class="pe-event">
-              <div class="pe-event-sev info"></div>
-              <div class="pe-event-content">
-                <div class="pe-event-title">Unused Licenses Found — Cloud Monitoring Tool</div>
-                <div class="pe-event-desc">3 seats inactive for 45 days in TIDCO department. Recommended reduction saves
-                  ₹4.2L/yr.</div>
-              </div>
-              <div class="pe-event-meta">
-                <div class="pe-event-time"><i class="bi bi-clock"></i> 3 days ago</div>
-                <span class="pe-status active" style="font-size: 9px; padding: 2px 8px;">Resolved</span>
-              </div>
-            </div>
+          <div class="pe-events-list" id="eventsList">
+               <div style="text-align: center; padding: 40px; color: var(--text3);">
+                 <div class="spinner"></div>
+                 <div>Loading events...</div>
+               </div>
           </div>
         </div>
 
@@ -450,7 +205,7 @@
         </div>
         <div class="pe-modal-actions">
           <button type="button" class="pe-btn-cancel" onclick="closePolicyModal()">Cancel</button>
-          <button type="submit" class="pe-btn-create"><i class="bi bi-plus-lg"></i> Create Policy</button>
+          <button type="submit" class="pe-btn-create" id="createPolicyBtn"><i class="bi bi-plus-lg"></i> Create Policy</button>
         </div>
       </form>
     </div>
@@ -459,6 +214,134 @@
   <script src="js/sidebar-profile.js"></script>
   <script src="js/dashboard.js"></script>
   <script>
+    // ── Data Fetching ──
+    async function loadPoliciesData() {
+        try {
+            const [pRes, aRes] = await Promise.all([
+                fetch('/api/policies').catch(()=>null), 
+                fetch('/api/alerts').catch(()=>null)
+            ]);
+            let policies = []
+            if (pRes && pRes.ok) policies = await pRes.json();
+            
+            let alerts = []
+            if (aRes && aRes.ok) alerts = await aRes.json();
+            
+            renderPolicies(policies);
+            renderAlerts(alerts);
+            updateKPIs(policies);
+        } catch (err) {
+            console.error('Error fetching policies data', err);
+        }
+    }
+
+    function renderPolicies(policies) {
+        const grid = document.getElementById('policyGrid');
+        if (!policies.length) {
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);"><i class="bi bi-shield-x" style="font-size:32px;opacity:0.5;"></i><div style="margin-top:10px;">No policies defined yet.</div></div>';
+            return;
+        }
+        grid.innerHTML = '';
+        policies.forEach(p => appendPolicyCard(p));
+    }
+
+    function appendPolicyCard(p) {
+        const status = p.status || (p.active ? 'active' : 'paused');
+        const icon = p.icon || 'bi-shield-check';
+        const color = p.color || '#4285F4';
+        
+        const accentColor = status === 'warning' ? 'var(--yellow)' : (status==='triggered'?'var(--red)':color);
+        
+        let statusHTML = '';
+        if (status === 'warning') {
+          statusHTML = '<span class="pe-status warning"><i class="bi bi-exclamation-triangle-fill"></i> Warning</span>';
+        } else if (status === 'triggered') {
+          statusHTML = '<span class="pe-status triggered"><i class="bi bi-exclamation-circle-fill"></i> Triggered</span>';
+        } else if (status === 'paused' || !p.active) {
+          statusHTML = '<span class="pe-status" style="background:var(--bg);color:var(--text3);"><i class="bi bi-pause-circle"></i> Paused</span>';
+        } else {
+          statusHTML = '<span class="pe-status active"><i class="bi bi-check-circle-fill"></i> Active</span>';
+        }
+        
+        const card = document.createElement('div');
+        card.className = 'pe-card';
+        card.setAttribute('data-id', p._id);
+        card.setAttribute('data-status', status);
+        if(!p.active) {
+            card.style.opacity = '0.55';
+        }
+        
+        card.innerHTML = \`
+          <div class="pe-card-accent" style="background: \${accentColor};"></div>
+          <div class="pe-card-body">
+            <div class="pe-card-header">
+              <div>
+                <div class="pe-card-title-row">
+                  <div class="pe-card-icon" style="background: \${color}18; color: \${color};"><i class="bi \${icon}"></i></div>
+                  <div class="pe-card-name">\${p.name}</div>
+                </div>
+                <div class="pe-card-desc">\${p.desc || 'Financial governance policy.'}</div>
+              </div>
+              <label class="pe-toggle">
+                <input type="checkbox" \${p.active !== false ? 'checked' : ''} />
+                <div class="pe-toggle-track"></div>
+                <div class="pe-toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="pe-rule-block">
+              <div class="pe-rule-row">
+                <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
+                \${p.cond || p.desc || 'Policy condition met'}
+              </div>
+              <div class="pe-rule-row">
+                <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
+                \${p.action || 'Require review or alert management'}
+              </div>
+            </div>
+            <div class="pe-card-footer">
+              \${statusHTML}
+              <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-clock"></i> Updated</span>
+            </div>
+          </div>
+        \`;
+        
+        document.getElementById('policyGrid').appendChild(card);
+        const toggle = card.querySelector('.pe-toggle input');
+        toggle.addEventListener('change', handleToggle);
+    }
+
+    function renderAlerts(alerts) {
+        const list = document.getElementById('eventsList');
+        const badge = document.getElementById('alertCountBadge');
+        if (badge) badge.textContent = alerts.length;
+        
+        if (!alerts.length) {
+            list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);"><i class="bi bi-bell-slash" style="font-size:32px;opacity:0.5;"></i><div style="margin-top:10px;">No recent alerts or events.</div></div>';
+            return;
+        }
+        
+        list.innerHTML = '';
+        alerts.forEach(a => {
+            const isWarning = a.type === 'warning';
+            const isCritical = a.type === 'critical';
+            const sevClass = isCritical ? 'critical' : (isWarning ? 'warning' : 'info');
+            const timeAgo = Math.round((Date.now() - new Date(a.createdAt).getTime()) / 3600000) || 1;
+            
+            list.innerHTML += \`
+            <div class="pe-event">
+              <div class="pe-event-sev \${sevClass}"></div>
+              <div class="pe-event-content">
+                <div class="pe-event-title">\${a.title}</div>
+                <div class="pe-event-desc">\${a.desc}</div>
+              </div>
+              <div class="pe-event-meta">
+                <div class="pe-event-time"><i class="bi bi-clock"></i> \${timeAgo}h ago</div>
+                <span class="pe-status \${isWarning ? 'warning' : 'active'}" style="font-size: 9px; padding: 2px 8px;">\${isCritical ? 'Triggered' : 'Review'}</span>
+              </div>
+            </div>\`;
+        });
+    }
+
     // ── Modal open/close ──
     function openPolicyModal() {
       document.getElementById('policyModal').classList.add('open');
@@ -467,17 +350,20 @@
       document.getElementById('policyModal').classList.remove('open');
       document.getElementById('addPolicyForm').reset();
     }
-    // Close on overlay click
+    
     document.getElementById('policyModal').addEventListener('click', function (e) {
       if (e.target === this) closePolicyModal();
     });
 
-    // Wire up the + Add Policy button
     document.querySelector('.btn-primary').addEventListener('click', openPolicyModal);
 
-    // ── Create new policy card ──
-    function createPolicy(e) {
+    // ── Create new policy ──
+    async function createPolicy(e) {
       e.preventDefault();
+      const btn = document.getElementById('createPolicyBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></i> Creating...';
+
       const name = document.getElementById('policyName').value.trim();
       const desc = document.getElementById('policyDesc').value.trim();
       const cond = document.getElementById('policyCond').value.trim();
@@ -487,69 +373,50 @@
       const color = iconSel.options[iconSel.selectedIndex].getAttribute('data-color');
       const status = document.getElementById('policyStatus').value;
 
-      const statusHTML = status === 'warning'
-        ? '<span class="pe-status warning"><i class="bi bi-exclamation-triangle-fill"></i> Warning</span>'
-        : '<span class="pe-status active"><i class="bi bi-check-circle-fill"></i> Active</span>';
-
-      const accentColor = status === 'warning' ? 'var(--yellow)' : color;
-
-      const card = document.createElement('div');
-      card.className = 'pe-card';
-      card.setAttribute('data-status', status);
-      card.style.animation = 'fadeSlideIn 0.4s ease';
-      card.innerHTML = `
-        <div class="pe-card-accent" style="background: ${accentColor};"></div>
-        <div class="pe-card-body">
-          <div class="pe-card-header">
-            <div>
-              <div class="pe-card-title-row">
-                <div class="pe-card-icon" style="background: ${color}18; color: ${color};"><i class="bi ${icon}"></i></div>
-                <div class="pe-card-name">${name}</div>
-              </div>
-              <div class="pe-card-desc">${desc || 'Custom financial governance policy.'}</div>
-            </div>
-            <label class="pe-toggle">
-              <input type="checkbox" checked />
-              <div class="pe-toggle-track"></div>
-              <div class="pe-toggle-thumb"></div>
-            </label>
-          </div>
-          <div class="pe-rule-block">
-            <div class="pe-rule-row">
-              <span class="pe-rule-label condition"><i class="bi bi-lightning-charge"></i> Condition</span>
-              ${cond}
-            </div>
-            <div class="pe-rule-row">
-              <span class="pe-rule-label action"><i class="bi bi-play-circle"></i> Action</span>
-              ${action}
-            </div>
-          </div>
-          <div class="pe-card-footer">
-            ${statusHTML}
-            <span style="font-size: 11px; color: var(--text3);"><i class="bi bi-clock"></i> Just created</span>
-          </div>
-        </div>
-      `;
-
-      document.querySelector('.pe-grid').appendChild(card);
-
-      // Attach toggle listener to new card
-      const toggle = card.querySelector('.pe-toggle input');
-      toggle.addEventListener('change', handleToggle);
-
-      closePolicyModal();
-      updateKPIs();
-
-      // Scroll to new card
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      try {
+          const res = await fetch('/api/policies', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, desc, cond, action, icon, color, status })
+          });
+          const data = await res.json();
+          if(data.success) {
+              // Re-fetch all to re-render in right order or just append
+              appendPolicyCard(data.policy);
+              updateKPIs();
+              closePolicyModal();
+              // Scroll to bottom
+              window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+          }
+      } catch (err) {
+          console.error('Failed to create policy', err);
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-plus-lg"></i> Create Policy';
     }
 
     // ── Toggle handler ──
-    function handleToggle() {
+    async function handleToggle() {
       const card = this.closest('.pe-card');
+      const pid = card.getAttribute('data-id');
       const statusBadge = card.querySelector('.pe-status');
       const accent = card.querySelector('.pe-card-accent');
-      if (!this.checked) {
+      const active = this.checked;
+      
+      try {
+          if (pid) {
+              await fetch(\`/api/policies/\${pid}\`, {
+                  method: 'PATCH',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify({ active })
+              });
+          }
+      } catch(err) {
+          console.error('Failed to toggle policy', err);
+      }
+
+      if (!active) {
         card.style.opacity = '0.55';
         statusBadge.className = 'pe-status';
         statusBadge.innerHTML = '<i class="bi bi-pause-circle"></i> Paused';
@@ -576,11 +443,8 @@
       updateKPIs();
     }
 
-    // Attach toggle handler to existing cards
-    document.querySelectorAll('.pe-toggle input').forEach(t => t.addEventListener('change', handleToggle));
-
     // ── KPI Update ──
-    function updateKPIs() {
+    function updateKPIs(policies = null) {
       let active = 0, triggered = 0, warning = 0, total = 0;
       document.querySelectorAll('.pe-card').forEach(card => {
         total++;
@@ -594,9 +458,10 @@
       document.getElementById('kpiActive').textContent = active;
       document.getElementById('kpiTriggered').textContent = triggered;
       document.getElementById('kpiWarning').textContent = warning;
-      // Update total rules count too
-      document.querySelectorAll('.pe-kpi-value')[3].textContent = total;
+      document.getElementById('kpiTotal').textContent = total;
     }
+    
+    document.addEventListener('DOMContentLoaded', loadPoliciesData);
   </script>
 
   <script src="js/theme.js"></script>

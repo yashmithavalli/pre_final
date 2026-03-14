@@ -550,6 +550,36 @@ async function initVendors() {
 }
 
 // ──────────────────────────────────────────────────────────────
+// REPORTS PAGE
+// ──────────────────────────────────────────────────────────────
+async function initReports() {
+  const txns = await fetch('/api/transactions').then(r => r.json()).catch(() => []);
+  const tbody = document.getElementById('reportsTableBody');
+  if (!tbody) return;
+
+  if (!txns.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3);">No transaction data available. Please upload a CSV first.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = txns.map(t => {
+    const d = t.date ? new Date(t.date) : new Date(t.uploadedAt);
+    const dateStr = isNaN(d) ? '—' : d.toLocaleDateString('en-IN', { month: 'short', day: '2-digit' });
+    const amt = parseFloat(t.amount) || 0;
+    return `
+      <tr>
+        <td>${dateStr}</td>
+        <td>${t.department || '—'}</td>
+        <td>${t.vendor || '—'}</td>
+        <td>${t.project || '—'}</td>
+        <td>${t.category || '—'}</td>
+        <td>${fmtINR(amt)}</td>
+        <td><span class="status-badge ${t.status ? t.status.toLowerCase() : 'approved'}">${t.status || 'Approved'}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+// ──────────────────────────────────────────────────────────────
 // EXPORT (reports.html / dashboard header button)
 // ──────────────────────────────────────────────────────────────
 async function exportDashboard() {
@@ -594,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('execSummary'))  initDashboard();
   if (document.getElementById('deptKpiGrid'))  initDepartments();
   if (document.getElementById('vendorKpiGrid')) initVendors();
+  if (document.getElementById('reportsTableBody')) initReports();
 
   // Also render charts if page has chart canvases but no dedicated grid
   // (e.g. departments.html and vendors.html also call charts via shared dashboard.js)

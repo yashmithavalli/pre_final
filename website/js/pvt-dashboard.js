@@ -65,6 +65,14 @@ async function saveSetup() {
 function renderKpis(data) {
   const el = document.getElementById('pvtKpiGrid');
   if (!el) return;
+
+  // Compute actual total savings from optimizations returned by API
+  const totalSavings = (data.optimizations || []).reduce((s, o) => s + (o.savings || 0), 0);
+  const savingsPct = data.totalSpend > 0
+    ? Math.round((totalSavings / data.totalSpend) * 100)
+    : 0;
+  const savingsLabel = totalSavings > 0 ? `~${savingsPct}% Savings` : 'AI Insights';
+
   el.innerHTML = `
     <div class="kpi-card">
       <div class="kpi-header">
@@ -93,26 +101,31 @@ function renderKpis(data) {
     <div class="kpi-card">
       <div class="kpi-header">
         <div class="kpi-icon" style="background:var(--red-light);color:var(--red);"><i class="bi bi-robot"></i></div>
-        <div class="kpi-change up" style="background:var(--green-light);color:var(--green);">~12% Savings</div>
+        <div class="kpi-change up" style="background:var(--green-light);color:var(--green);">${savingsLabel}</div>
       </div>
-      <div class="kpi-value" style="color:var(--green);">${fmtINR(data.totalSpend * 0.12)}</div>
+      <div class="kpi-value" style="color:var(--green);">${totalSavings > 0 ? fmtINR(totalSavings) : '—'}</div>
       <div class="kpi-label">Possible AI Savings</div>
     </div>`;
 }
 
-function renderProjectGrid(projectCosts) {
+function renderProjectGrid(projectCosts, optimizations) {
   const el = document.getElementById('pvtProjectGrid');
   if (!el) return;
-  const entries = Object.entries(projectCosts);
+  const entries = Object.entries(projectCosts).filter(([, v]) => v > 0);
   if (!entries.length) {
     el.innerHTML = `<div class="pvt-empty"><i class="bi bi-folder-x"></i><div>No project data yet.</div><div style="font-size:12px;margin-top:6px;">Upload a CSV with a <code>project</code> or <code>department</code> column, or add projects in Setup.</div></div>`;
     return;
   }
   const total = entries.reduce((s, [, v]) => s + v, 0);
+  // Build a savings map from actual optimizations (keyed by vendor amount proportions)
+  const totalOptSavings = (optimizations || []).reduce((s, o) => s + (o.savings || 0), 0);
+  const totalOptSpend   = (optimizations || []).reduce((s, o) => s + (o.amount || 0), 0);
+  const savingsRate     = totalOptSpend > 0 ? totalOptSavings / totalOptSpend : 0;
+
   el.innerHTML = entries.map(([proj, amt], i) => {
     const color = COLORS[i % COLORS.length];
-    const pct   = total ? Math.round((amt / total) * 100) : 0;
-    const savings = Math.round(amt * 0.12);
+    const pct = total ? Math.round((amt / total) * 100) : 0;
+    const savings = savingsRate > 0 ? Math.round(amt * savingsRate) : null;
     return `
       <div class="pvt-project-card" style="border-top:4px solid ${color};">
         <div class="pvt-project-icon" style="background:${color}22;color:${color};">
@@ -126,7 +139,7 @@ function renderProjectGrid(projectCosts) {
           </div>
           <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text3);">
             <span>${pct}% of total</span>
-            <span style="color:var(--green);">Save ≈ ${fmtINR(savings)}</span>
+            ${savings !== null ? `<span style="color:var(--green);">Save ≈ ${fmtINR(savings)}</span>` : ''}
           </div>
         </div>
       </div>`;
@@ -301,7 +314,7 @@ async function loadDashboard() {
   const res  = await fetch('/api/pvt/analytics');
   const data = await res.json();
   renderKpis(data);
-  renderProjectGrid(data.projectCosts);
+  renderProjectGrid(data.projectCosts, data.optimizations);
   renderTeamAnalytics(data.teamUsage, data);
   renderAiPanel(data.optimizations, data.totalSpend);
   renderProfitChart(data.monthlyTrend, data.totalSpend);

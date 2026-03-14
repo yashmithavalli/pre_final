@@ -424,8 +424,8 @@ app.get('/api/stats', async (req, res) => {
     res.json({
       totalSpend,
       totalTransactions,
-      departments: deptCount || 8,
-      vendors: vendorCount || 5,
+      departments: deptCount,
+      vendors: vendorCount,
       citizensServed,
       transactionsProcessed,
       serverHours
@@ -629,50 +629,11 @@ function computeLedgerHash(entry) {
   return '0x' + crypto.createHash('sha256').update(payload).digest('hex');
 }
 
-// ── Seed default ledger entries on first run ──
-async function seedAuditLedger() {
-  const count = await db.collection('audit_ledger').countDocuments();
-  if (count > 0) return;
-
-  const seeds = [
-    { id:'EVT-2041', timestamp:'14 Mar 2026, 11:20 AM', department:'IT Infrastructure', project:'Global Data Center Expansion', vendor:'Equinix Inc.', policy:'Corporate Budget Limit', action:'Approval Required', approver:'CTO Office', status:'approved' },
-    { id:'EVT-2042', timestamp:'14 Mar 2026, 10:45 AM', department:'Product Development', project:'AI Model Training Cluster', vendor:'NVIDIA Enterprise', policy:'Large Purchase Approval', action:'Blocked — Over ₹1Cr', approver:'CFO Office', status:'blocked' },
-    { id:'EVT-2043', timestamp:'14 Mar 2026, 09:58 AM', department:'Marketing', project:'Global Brand Transformation', vendor:'Ogilvy & Mather', policy:'Vendor Compliance Check', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2044', timestamp:'13 Mar 2026, 04:30 PM', department:'Human Resources', project:'ERP Human Capital Management', vendor:'Workday Inc.', policy:'Budget Overrun Alert', action:'Policy Triggered', approver:'HR Director', status:'triggered' },
-    { id:'EVT-2045', timestamp:'13 Mar 2026, 03:15 PM', department:'Sales & Operations', project:'CRM System Integration', vendor:'Salesforce', policy:'Duplicate Transaction Check', action:'Blocked — Duplicate', approver:'System', status:'blocked' },
-    { id:'EVT-2046', timestamp:'13 Mar 2026, 02:00 PM', department:'R&D', project:'Next-Gen Chipset Design', vendor:'TSMC', policy:'Spending Anomaly Detection', action:'Under Review', approver:'R&D Head', status:'triggered' },
-    { id:'EVT-2047', timestamp:'13 Mar 2026, 11:42 AM', department:'Legal', project:'Intellectual Property Audit', vendor:'Baker McKenzie', policy:'Department Budget Limit', action:'Exception Override', approver:'General Counsel', status:'override' },
-    { id:'EVT-2048', timestamp:'13 Mar 2026, 10:20 AM', department:'Facilities', project:'Smart Office Modernization', vendor:'Honeywell', policy:'Large Purchase Approval', action:'Approval Required', approver:'Facilities Manager', status:'approved' },
-    { id:'EVT-2049', timestamp:'12 Mar 2026, 05:10 PM', department:'Supply Chain', project:'Warehouse Automation Pilot', vendor:'Amazon Robotics', policy:'Vendor Compliance Check', action:'Vendor Blocked', approver:'Procurement Lead', status:'blocked' },
-    { id:'EVT-2050', timestamp:'12 Mar 2026, 04:05 PM', department:'IT Support', project:'Global Service Desk Upgrade', vendor:'ServiceNow', policy:'Budget Overrun Alert', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2051', timestamp:'12 Mar 2026, 02:30 PM', department:'Finance', project:'Automated Treasury System', vendor:'SAP SE', policy:'Department Budget Limit', action:'Approval Required', approver:'Treasury Head', status:'approved' },
-    { id:'EVT-2052', timestamp:'12 Mar 2026, 12:15 PM', department:'Security', project:'Zero Trust Architecture Rollout', vendor:'CrowdStrike', policy:'Spending Anomaly Detection', action:'Policy Triggered', approver:'CISO', status:'triggered' },
-    { id:'EVT-2053', timestamp:'12 Mar 2026, 10:00 AM', department:'Cloud Ops', project:'Multi-Cloud Migrations (AWS/Azure)', vendor:'HashiCorp', policy:'Large Purchase Approval', action:'Blocked — Over ₹1Cr', approver:'Cloud Director', status:'blocked' },
-    { id:'EVT-2054', timestamp:'11 Mar 2026, 04:45 PM', department:'Customer Success', project:'Support Automation Platform', vendor:'Zendesk', policy:'Vendor Compliance Check', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2055', timestamp:'11 Mar 2026, 03:20 PM', department:'Logistics', project:'Route Optimization AI', vendor:'IBM Logistics', policy:'Budget Overrun Alert', action:'Exception Override', approver:'COO', status:'override' },
-    { id:'EVT-2056', timestamp:'11 Mar 2026, 01:50 PM', department:'Engineering', project:'SaaS Platform Scalability', vendor:'Datadog', policy:'Department Budget Limit', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2057', timestamp:'11 Mar 2026, 11:30 AM', department:'Marketing', project:'SaaS Product Launch Campaigns', vendor:'HubSpot', policy:'Large Purchase Approval', action:'Approval Required', approver:'CMO', status:'approved' },
-    { id:'EVT-2058', timestamp:'11 Mar 2026, 09:15 AM', department:'Compliance', project:'GDPR Compliance Framework', vendor:'OneTrust', policy:'Duplicate Transaction Check', action:'Blocked — Duplicate', approver:'System', status:'blocked' },
-    { id:'EVT-2059', timestamp:'10 Mar 2026, 05:30 PM', department:'Strategic Planning', project:'Merger & Acquisition Analysis', vendor:'McKinsey & Co.', policy:'Spending Anomaly Detection', action:'Policy Triggered', approver:'Strategy Head', status:'triggered' },
-    { id:'EVT-2060', timestamp:'10 Mar 2026, 03:45 PM', department:'Water Resources', project:'Rainwater Harvesting Project', vendor:'Triveni Engineering', policy:'Department Budget Limit', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2061', timestamp:'10 Mar 2026, 01:20 PM', department:'Transport Infrastructure', project:'Bridge Strengthening — Delta', vendor:'Gammon India', policy:'Budget Overrun Alert', action:'Blocked — Budget Exceeded', approver:'Audit Commissioner', status:'blocked' },
-    { id:'EVT-2062', timestamp:'10 Mar 2026, 10:00 AM', department:'Education', project:'Teacher Training Programme', vendor:'NIIT Technologies', policy:'Vendor Compliance Check', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2063', timestamp:'09 Mar 2026, 04:10 PM', department:'Healthcare Services', project:'Vaccine Cold Chain Upgrade', vendor:'Blue Star Limited', policy:'Large Purchase Approval', action:'Exception Override', approver:'Chief Secretary', status:'override' },
-    { id:'EVT-2064', timestamp:'09 Mar 2026, 02:25 PM', department:'Urban Development', project:'Public Park — Trichy', vendor:'Landscape India', policy:'Department Budget Limit', action:'Auto-Approved', approver:'System', status:'approved' },
-    { id:'EVT-2065', timestamp:'09 Mar 2026, 11:00 AM', department:'Energy', project:'EV Charging Network', vendor:'Tata Power', policy:'Spending Anomaly Detection', action:'Under Review', approver:'Energy Secretary', status:'triggered' },
-  ];
-
-  // Compute real SHA-256 for each seed entry
-  const docs = seeds.map(s => ({
-    ...s,
-    hash: computeLedgerHash(s),
-    createdAt: new Date(),
-    source: 'seed'
-  }));
-
-  await db.collection('audit_ledger').insertMany(docs);
-  await db.collection('audit_ledger').createIndex({ id: 1 }, { unique: true });
-  console.log('✓ Seeded 25 audit ledger entries with SHA-256 hashes');
+// Audit ledger index — ensure unique ID index on startup
+async function ensureAuditLedgerIndex() {
+  try {
+    await db.collection('audit_ledger').createIndex({ id: 1 }, { unique: true, sparse: true });
+  } catch (e) { /* index may already exist */ }
 }
 
 // ── GET /api/audit-ledger — Fetch all entries ──
@@ -855,7 +816,7 @@ app.get('/api/audit-ledger/verify', async (req, res) => {
 // ── Start Server ─────────────────────────────────────────
 async function start() {
   await connectDB();
-  await seedAuditLedger();
+  await ensureAuditLedgerIndex();
   app.listen(PORT, () => {
     console.log(`\n  ╔══════════════════════════════════════════╗`);
     console.log(`  ║  Unified FinOps Platform                 ║`);

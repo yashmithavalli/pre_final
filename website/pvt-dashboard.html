@@ -93,12 +93,19 @@
                 <button class="pvt-tag-add-btn" id="addProjectBtn"><i class="bi bi-plus-lg"></i></button>
               </div>
             </div>
-            <!-- Team Members -->
+            <!-- Team Members with RBAC -->
             <div class="pvt-setup-col">
-              <div class="pvt-setup-col-title"><i class="bi bi-people"></i> Team Members</div>
+              <div class="pvt-setup-col-title"><i class="bi bi-people"></i> Team Members & Roles</div>
               <div class="pvt-tag-list" id="pvtTeamTags"></div>
-              <div class="pvt-tag-input-row">
-                <input type="text" id="pvtTeamInput" class="form-input" placeholder="e.g. Rahul Sharma" />
+              <div class="pvt-tag-input-row" style="flex-wrap:wrap;gap:6px;">
+                <input type="text" id="pvtTeamInput" class="form-input" placeholder="Name" style="flex:1;min-width:100px;" />
+                <input type="email" id="pvtTeamEmailInput" class="form-input" placeholder="Email" style="flex:1.5;min-width:140px;" />
+                <select id="pvtTeamRoleInput" class="form-input" style="flex:1;min-width:120px;">
+                  <option value="admin">Admin</option>
+                  <option value="finance_manager">Finance Manager</option>
+                  <option value="project_lead">Project Lead</option>
+                  <option value="viewer" selected>Viewer</option>
+                </select>
                 <button class="pvt-tag-add-btn" id="addTeamBtn"><i class="bi bi-plus-lg"></i></button>
               </div>
             </div>

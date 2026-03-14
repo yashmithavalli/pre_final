@@ -140,10 +140,25 @@ app.post('/api/login', async (req, res) => {
     req.session.role = user.role;
     req.session.orgName = user.orgName;
     req.session.orgType = orgType;
+    req.session.email = user.email;
+
+    // Determine RBAC accessRole
+    // The org admin (the user who registered) always gets 'admin'
+    let accessRole = 'admin';
+    if (orgType === 'private') {
+      const setup = await db.collection('pvt_setup').findOne({ orgName: user.orgName });
+      if (setup && setup.teamMembers && Array.isArray(setup.teamMembers)) {
+        const member = setup.teamMembers.find(m => typeof m === 'object' && m.email === user.email);
+        if (member && member.role) {
+          accessRole = member.role;
+        }
+      }
+    }
+    req.session.accessRole = accessRole;
 
     res.json({
       success: true,
-      user: { userName: user.userName, email: user.email, role: user.role, orgName: user.orgName, orgType }
+      user: { userName: user.userName, email: user.email, role: user.role, accessRole, orgName: user.orgName, orgType }
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -162,7 +177,14 @@ app.get('/api/me', (req, res) => {
   if (req.session.userId) {
     res.json({
       loggedIn: true,
-      user: { userName: req.session.userName, role: req.session.role, orgName: req.session.orgName, orgType: req.session.orgType }
+      user: {
+        userName: req.session.userName,
+        email: req.session.email,
+        role: req.session.role,
+        accessRole: req.session.accessRole || 'admin',
+        orgName: req.session.orgName,
+        orgType: req.session.orgType
+      }
     });
   } else {
     res.json({ loggedIn: false });
@@ -291,12 +313,13 @@ app.get('/api/pvt/analytics', async (req, res) => {
     projectCosts[proj] = (projectCosts[proj] || 0) + (parseFloat(t.amount) || 0);
   });
 
-  // Team usage map
+  // Team usage map — supports both old string[] and new {name,email,role}[] format
   const teamUsage = {};
-  (setup.teamMembers || []).forEach(m => { teamUsage[m] = 0; });
-  if (setup.teamMembers && setup.teamMembers.length > 0) {
+  const teamNames = (setup.teamMembers || []).map(m => typeof m === 'object' ? m.name : m);
+  teamNames.forEach(m => { teamUsage[m] = 0; });
+  if (teamNames.length > 0) {
     txns.forEach((t, i) => {
-      const member = setup.teamMembers[i % setup.teamMembers.length];
+      const member = teamNames[i % teamNames.length];
       teamUsage[member] = (teamUsage[member] || 0) + (parseFloat(t.amount) || 0);
     });
   }
@@ -333,7 +356,8 @@ app.get('/api/pvt/analytics', async (req, res) => {
     monthlyTrend: monthMap,
     optimizations,
     projects: setup.projects,
-    teamMembers: setup.teamMembers
+    teamMembers: setup.teamMembers,
+    teamNames
   });
 });
 

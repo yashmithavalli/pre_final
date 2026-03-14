@@ -18,7 +18,21 @@ const COLORS = ['#4285F4','#34A853','#FBBC05','#EA4335','#A142F4',
 
 // ── State ─────────────────────────────────────────────────
 let pvtProjects    = [];
-let pvtTeamMembers = [];
+let pvtTeamMembers = []; // array of {name, email, role}
+let currentAccessRole = 'admin'; // current user's RBAC role
+
+const ROLE_LABELS = {
+  admin: 'Admin',
+  finance_manager: 'Finance Manager',
+  project_lead: 'Project Lead',
+  viewer: 'Viewer'
+};
+const ROLE_COLORS = {
+  admin: '#EA4335',
+  finance_manager: '#4285F4',
+  project_lead: '#FBBC05',
+  viewer: '#34A853'
+};
 
 // ── Setup Panel Logic ──────────────────────────────────────
 function renderTags(containerId, items, onRemove) {
@@ -37,7 +51,27 @@ function refreshProjectTags() {
   renderTags('pvtProjectTags', pvtProjects, (i) => { pvtProjects.splice(i, 1); refreshProjectTags(); });
 }
 function refreshTeamTags() {
-  renderTags('pvtTeamTags', pvtTeamMembers, (i) => { pvtTeamMembers.splice(i, 1); refreshTeamTags(); });
+  const el = document.getElementById('pvtTeamTags');
+  if (!el) return;
+  el.innerHTML = pvtTeamMembers.map((m, i) => {
+    const name = typeof m === 'object' ? m.name : m;
+    const email = typeof m === 'object' ? m.email : '';
+    const role = typeof m === 'object' ? m.role : 'viewer';
+    const roleLabel = ROLE_LABELS[role] || role;
+    const roleColor = ROLE_COLORS[role] || '#888';
+    return `
+      <span class="pvt-tag" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;">
+        <span style="font-weight:600;">${name}</span>
+        <span style="font-size:10px;color:var(--text3);">${email}</span>
+        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:${roleColor}18;color:${roleColor};text-transform:uppercase;letter-spacing:0.3px;">${roleLabel}</span>
+        <button onclick="removeTeamMember(${i})" class="pvt-tag-remove"><i class="bi bi-x"></i></button>
+      </span>`;
+  }).join('');
+}
+
+function removeTeamMember(idx) {
+  pvtTeamMembers.splice(idx, 1);
+  refreshTeamTags();
 }
 
 function showSetupPanel(show) {
@@ -49,7 +83,11 @@ async function loadSetup() {
   const res  = await fetch('/api/pvt/setup');
   const data = await res.json();
   pvtProjects    = data.projects    || [];
-  pvtTeamMembers = data.teamMembers || [];
+  // Support both old string[] and new object[] format
+  pvtTeamMembers = (data.teamMembers || []).map(m => {
+    if (typeof m === 'string') return { name: m, email: '', role: 'viewer' };
+    return m;
+  });
   return data;
 }
 
@@ -93,9 +131,9 @@ function renderKpis(data) {
     <div class="kpi-card">
       <div class="kpi-header">
         <div class="kpi-icon" style="background:var(--yellow-light);color:#B06D00;"><i class="bi bi-people"></i></div>
-        <div class="kpi-change" style="background:var(--yellow-light);color:#B06D00;">${data.teamMembers.length} Members</div>
+        <div class="kpi-change" style="background:var(--yellow-light);color:#B06D00;">${(data.teamNames || data.teamMembers || []).length} Members</div>
       </div>
-      <div class="kpi-value" style="color:#B06D00;">${data.teamMembers.length}</div>
+      <div class="kpi-value" style="color:#B06D00;">${(data.teamNames || data.teamMembers || []).length}</div>
       <div class="kpi-label">Team Members</div>
     </div>
     <div class="kpi-card">
@@ -178,18 +216,29 @@ function renderTeamAnalytics(teamUsage, data) {
       return;
     }
     const totalTeam = entries.reduce((s, [, v]) => s + v, 0);
+    // Build a role lookup from teamMembers
+    const roleLookup = {};
+    (pvtTeamMembers || []).forEach(m => {
+      if (typeof m === 'object') roleLookup[m.name] = m.role || 'viewer';
+    });
     table.innerHTML = `<table class="data-table">
-      <thead><tr><th>Member</th><th>Attributed Spend</th><th>Share</th></tr></thead>
+      <thead><tr><th>Member</th><th>Role</th><th>Attributed Spend</th><th>Share</th></tr></thead>
       <tbody>
-        ${entries.map(([name, amt], i) => `
+        ${entries.map(([name, amt], i) => {
+          const role = roleLookup[name] || 'viewer';
+          const roleLabel = ROLE_LABELS[role] || role;
+          const roleColor = ROLE_COLORS[role] || '#888';
+          return `
           <tr>
             <td style="display:flex;align-items:center;gap:10px;">
               <div style="width:28px;height:28px;border-radius:50%;background:${COLORS[i % COLORS.length]};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">${name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}</div>
               ${name}
             </td>
+            <td><span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:${roleColor}18;color:${roleColor};text-transform:uppercase;letter-spacing:0.3px;">${roleLabel}</span></td>
             <td><strong>${fmtINR(amt)}</strong></td>
             <td><span class="status-badge active">${totalTeam ? Math.round((amt / totalTeam) * 100) : 0}%</span></td>
-          </tr>`).join('')}
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
   }
@@ -285,7 +334,10 @@ async function init() {
   // Load setup
   const setup = await loadSetup();
   pvtProjects    = setup.projects    || [];
-  pvtTeamMembers = setup.teamMembers || [];
+  pvtTeamMembers = (setup.teamMembers || []).map(m => {
+    if (typeof m === 'string') return { name: m, email: '', role: 'viewer' };
+    return m;
+  });
 
   const orgRes = await fetch('/api/me');
   const orgData = await orgRes.json();
@@ -294,6 +346,10 @@ async function init() {
     const subEl   = document.getElementById('pvtOrgSub');
     if (titleEl) titleEl.textContent = orgData.user.orgName + ' — Enterprise Dashboard';
     if (subEl)   subEl.textContent = 'Project-level spending · Team analytics · AI optimization · ' + (orgData.user.userName || '');
+
+    // Set RBAC role
+    currentAccessRole = orgData.user.accessRole || 'admin';
+    applyRBAC(currentAccessRole);
   }
 
   const hasSetup = pvtProjects.length > 0 || pvtTeamMembers.length > 0;
@@ -357,14 +413,28 @@ function setupPanelEvents() {
   }
 
   if (addTeamBtn && teamInput) {
+    const emailInput = document.getElementById('pvtTeamEmailInput');
+    const roleInput  = document.getElementById('pvtTeamRoleInput');
     const addMember = () => {
-      const val = teamInput.value.trim();
-      if (val && !pvtTeamMembers.includes(val)) { pvtTeamMembers.push(val); refreshTeamTags(); }
+      const name  = teamInput.value.trim();
+      const email = emailInput ? emailInput.value.trim() : '';
+      const role  = roleInput  ? roleInput.value : 'viewer';
+      if (!name || !email) return;
+      // Check if email already exists
+      if (pvtTeamMembers.some(m => (typeof m === 'object' ? m.email : '') === email)) {
+        alert('A team member with this email already exists.');
+        return;
+      }
+      pvtTeamMembers.push({ name, email, role });
+      refreshTeamTags();
       teamInput.value = '';
+      if (emailInput) emailInput.value = '';
+      if (roleInput) roleInput.value = 'viewer';
       teamInput.focus();
     };
     addTeamBtn.addEventListener('click', addMember);
     teamInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addMember(); } });
+    if (emailInput) emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addMember(); } });
   }
 
   if (savePvtSetup) {
@@ -385,3 +455,40 @@ function setupPanelEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ── RBAC Enforcement ───────────────────────────────────────
+function applyRBAC(role) {
+  // Hide setup/edit buttons for non-admins
+  const adminOnly = [
+    document.getElementById('setupToggleBtn'),
+    document.getElementById('pvtSetupBtn'),
+    document.getElementById('openSetupBtn')
+  ];
+
+  // Viewers cannot upload or edit
+  const notViewer = [
+    ...document.querySelectorAll('a[href="upload.html"].btn-primary')
+  ];
+
+  if (role === 'viewer') {
+    adminOnly.forEach(el => { if (el) el.style.display = 'none'; });
+    notViewer.forEach(el => { if (el) el.style.display = 'none'; });
+  } else if (role === 'project_lead' || role === 'finance_manager') {
+    adminOnly.forEach(el => { if (el) el.style.display = 'none'; });
+  }
+  // admin sees everything
+
+  // Filter sidebar links based on role
+  const restrictedLinks = {
+    viewer:         ['policies.html', 'erp.html', 'upload.html'],
+    project_lead:   ['policies.html'],
+    finance_manager: []
+  };
+  const blocked = restrictedLinks[role] || [];
+  document.querySelectorAll('.sidebar-item').forEach(link => {
+    const href = link.getAttribute('href') || '';
+    if (blocked.some(b => href.includes(b))) {
+      link.style.display = 'none';
+    }
+  });
+}

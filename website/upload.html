@@ -203,6 +203,7 @@
               <button class="btn-secondary" id="erpTestBtn"><i class="bi bi-lightning"></i> Test Connection</button>
               <button class="btn-primary" id="erpSyncBtn"><i class="bi bi-arrow-repeat"></i> Sync Data</button>
             </div>
+            <div id="erpStatus" style="display: none; margin-top: 16px;"></div>
           </div>
         </div>
 
@@ -247,6 +248,7 @@
             <div class="ingestion-form-actions">
               <button class="btn-primary" id="cloudImportBtn"><i class="bi bi-cloud-download"></i> Import Billing Data</button>
             </div>
+            <div id="cloudStatus" style="display: none; margin-top: 16px;"></div>
           </div>
         </div>
 
@@ -400,17 +402,55 @@
           });
       }
 
+      // ── Helper: show status banner ──────────────────────
+      function showStatus(el, type, message) {
+        if (!el) return;
+        el.style.display = 'block';
+        const colors = {
+          loading: { bg: 'var(--blue-light)', color: 'var(--blue)', icon: 'bi-arrow-repeat' },
+          success: { bg: 'var(--green-light)', color: 'var(--green)', icon: 'bi-check-circle-fill' },
+          error:   { bg: 'var(--red-light)',   color: 'var(--red)',   icon: 'bi-x-circle-fill' }
+        };
+        const c = colors[type] || colors.error;
+        const spin = type === 'loading' ? ' style="animation:spin 1s linear infinite;"' : '';
+        el.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:${c.bg};border-radius:var(--r-sm);color:${c.color};font-size:13px;font-weight:600;">
+            <i class="bi ${c.icon}"${spin}></i>
+            ${message}
+          </div>`;
+      }
+
+      const erpStatus = document.getElementById('erpStatus');
+      const cloudStatus = document.getElementById('cloudStatus');
+
       // ── ERP System Buttons ────────────────────────────────
       document.getElementById('erpTestBtn').addEventListener('click', () => {
         const config = {
           provider: document.getElementById('erpProvider').value,
           endpoint: document.getElementById('erpEndpoint').value,
-          apiKey: document.getElementById('erpApiKey').value ? '••••••' : '(empty)',
+          apiKey: document.getElementById('erpApiKey').value,
           orgId: document.getElementById('erpOrgId').value,
           syncFreq: document.getElementById('erpSyncFreq').value
         };
-        console.log('[ERP] Test Connection requested:', config);
-        alert('Test Connection logged to console. Backend integration pending.');
+        if (!config.provider || !config.endpoint || !config.apiKey) {
+          showStatus(erpStatus, 'error', 'Please fill in Provider, API Endpoint, and API Key');
+          return;
+        }
+        showStatus(erpStatus, 'loading', 'Testing connection…');
+        fetch('/api/erp/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showStatus(erpStatus, 'success', data.message);
+            } else {
+              showStatus(erpStatus, 'error', data.error || 'Connection test failed');
+            }
+          })
+          .catch(() => showStatus(erpStatus, 'error', 'Network error — check server connection'));
       });
 
       document.getElementById('erpSyncBtn').addEventListener('click', () => {
@@ -420,8 +460,25 @@
           orgId: document.getElementById('erpOrgId').value,
           syncFreq: document.getElementById('erpSyncFreq').value
         };
-        console.log('[ERP] Sync Data requested:', config);
-        alert('Sync Data logged to console. Backend integration pending.');
+        if (!config.provider || !config.endpoint) {
+          showStatus(erpStatus, 'error', 'Please fill in Provider and API Endpoint');
+          return;
+        }
+        showStatus(erpStatus, 'loading', 'Syncing data from ' + config.provider.toUpperCase() + '…');
+        fetch('/api/erp/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showStatus(erpStatus, 'success', data.message);
+            } else {
+              showStatus(erpStatus, 'error', data.error || 'Data sync failed');
+            }
+          })
+          .catch(() => showStatus(erpStatus, 'error', 'Network error — check server connection'));
       });
 
       // ── Cloud Billing Button ──────────────────────────────
@@ -429,12 +486,29 @@
         const config = {
           provider: document.getElementById('cloudProvider').value,
           billingId: document.getElementById('cloudBillingId').value,
-          accessKey: document.getElementById('cloudAccessKey').value ? '••••••' : '(empty)',
-          secretKey: document.getElementById('cloudSecretKey').value ? '••••••' : '(empty)',
+          accessKey: document.getElementById('cloudAccessKey').value,
+          secretKey: document.getElementById('cloudSecretKey').value,
           region: document.getElementById('cloudRegion').value
         };
-        console.log('[Cloud Billing] Import requested:', config);
-        alert('Import Billing Data logged to console. Backend integration pending.');
+        if (!config.provider || !config.billingId || !config.accessKey) {
+          showStatus(cloudStatus, 'error', 'Please fill in Provider, Billing Account ID, and Access Key');
+          return;
+        }
+        showStatus(cloudStatus, 'loading', 'Importing billing data from ' + config.provider.toUpperCase() + '…');
+        fetch('/api/cloud/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showStatus(cloudStatus, 'success', data.message);
+            } else {
+              showStatus(cloudStatus, 'error', data.error || 'Import failed');
+            }
+          })
+          .catch(() => showStatus(cloudStatus, 'error', 'Network error — check server connection'));
       });
 
       // ── Manual Entry Button ───────────────────────────────

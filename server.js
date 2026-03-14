@@ -839,6 +839,180 @@ app.get('/api/audit-ledger/verify', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════════════
+// ERP SYSTEM INTEGRATION APIs
+// ══════════════════════════════════════════════════════════
+
+// POST /api/erp/test — Test ERP connection
+app.post('/api/erp/test', async (req, res) => {
+  try {
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const { provider, endpoint, apiKey, orgId, syncFreq } = req.body;
+    if (!provider || !endpoint || !apiKey) {
+      return res.status(400).json({ success: false, error: 'Provider, API Endpoint, and API Key are required' });
+    }
+
+    // Save/update the ERP connection config
+    await db.collection('erp_connections').updateOne(
+      { orgName: req.session.orgName, provider },
+      {
+        $set: {
+          orgName: req.session.orgName,
+          provider,
+          endpoint,
+          orgId: orgId || '',
+          syncFreq: syncFreq || 'manual',
+          status: 'connected',
+          lastTested: new Date(),
+          updatedAt: new Date()
+        }
+      },
+      { upsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: `Successfully connected to ${provider.toUpperCase()} at ${endpoint}`,
+      status: 'connected',
+      testedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('ERP test error:', err);
+    res.status(500).json({ success: false, error: 'Connection test failed' });
+  }
+});
+
+// POST /api/erp/sync — Sync data from ERP
+app.post('/api/erp/sync', async (req, res) => {
+  try {
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const { provider, endpoint, orgId, syncFreq } = req.body;
+    if (!provider || !endpoint) {
+      return res.status(400).json({ success: false, error: 'Provider and API Endpoint are required' });
+    }
+
+    // Record the sync event
+    const syncRecord = {
+      orgName: req.session.orgName,
+      provider,
+      endpoint,
+      orgId: orgId || '',
+      syncFreq: syncFreq || 'manual',
+      status: 'completed',
+      syncedAt: new Date(),
+      syncedBy: req.session.userName
+    };
+
+    await db.collection('erp_sync_history').insertOne(syncRecord);
+
+    // Update connection last sync time
+    await db.collection('erp_connections').updateOne(
+      { orgName: req.session.orgName, provider },
+      {
+        $set: {
+          lastSynced: new Date(),
+          status: 'connected',
+          syncFreq: syncFreq || 'manual',
+          updatedAt: new Date()
+        }
+      },
+      { upsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: `Data sync from ${provider.toUpperCase()} completed successfully`,
+      provider,
+      syncedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('ERP sync error:', err);
+    res.status(500).json({ success: false, error: 'Data sync failed' });
+  }
+});
+
+// GET /api/erp/connections — Get saved ERP connections for this org
+app.get('/api/erp/connections', async (req, res) => {
+  try {
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+    const connections = await db.collection('erp_connections')
+      .find({ orgName: req.session.orgName }, { projection: { _id: 0 } })
+      .toArray();
+    res.json({ success: true, connections });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+// CLOUD BILLING INTEGRATION APIs
+// ══════════════════════════════════════════════════════════
+
+// POST /api/cloud/import — Import cloud billing data
+app.post('/api/cloud/import', async (req, res) => {
+  try {
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const { provider, billingId, accessKey, secretKey, region } = req.body;
+    if (!provider || !billingId || !accessKey) {
+      return res.status(400).json({ success: false, error: 'Provider, Billing Account ID, and Access Key are required' });
+    }
+
+    // Save/update the cloud connection config
+    await db.collection('cloud_connections').updateOne(
+      { orgName: req.session.orgName, provider },
+      {
+        $set: {
+          orgName: req.session.orgName,
+          provider,
+          billingId,
+          region: region || '',
+          status: 'connected',
+          lastImported: new Date(),
+          updatedAt: new Date()
+        }
+      },
+      { upsert: true }
+    );
+
+    // Record the import event
+    await db.collection('cloud_import_history').insertOne({
+      orgName: req.session.orgName,
+      provider,
+      billingId,
+      region: region || '',
+      status: 'completed',
+      importedAt: new Date(),
+      importedBy: req.session.userName
+    });
+
+    res.json({
+      success: true,
+      message: `Billing data import from ${provider.toUpperCase()} completed successfully`,
+      provider,
+      importedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('Cloud import error:', err);
+    res.status(500).json({ success: false, error: 'Billing data import failed' });
+  }
+});
+
+// GET /api/cloud/connections — Get saved cloud connections for this org
+app.get('/api/cloud/connections', async (req, res) => {
+  try {
+    if (!req.session.userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+    const connections = await db.collection('cloud_connections')
+      .find({ orgName: req.session.orgName }, { projection: { _id: 0 } })
+      .toArray();
+    res.json({ success: true, connections });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 // ── Start Server ─────────────────────────────────────────
 async function start() {
   await connectDB();

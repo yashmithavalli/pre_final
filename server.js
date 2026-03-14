@@ -402,10 +402,19 @@ app.get('/api/stats', async (req, res) => {
     const totalTransactions = await db.collection('transactions').countDocuments(orgQuery);
     const pipeline = [
       { $match: orgQuery },
-      { $group: { _id: null, totalSpend: { $sum: '$amount' } } }
+      { $group: { 
+          _id: null, 
+          totalSpend: { $sum: '$amount' },
+          citizensServed: { $sum: { $convert: { input: '$citizens_served', to: 'double', onError: 0, onNull: 0 } } },
+          transactionsProcessed: { $sum: { $convert: { input: '$transactions_processed', to: 'double', onError: 0, onNull: 0 } } },
+          serverHours: { $sum: { $convert: { input: '$server_hours', to: 'double', onError: 0, onNull: 0 } } }
+      } }
     ];
     const spendResult = await db.collection('transactions').aggregate(pipeline).toArray();
     const totalSpend = spendResult[0]?.totalSpend || 0;
+    const citizensServed = spendResult[0]?.citizensServed || 0;
+    const transactionsProcessed = spendResult[0]?.transactionsProcessed || 0;
+    const serverHours = spendResult[0]?.serverHours || 0;
 
     const deptResult = await db.collection('transactions').aggregate([{ $match: orgQuery }, { $group: { _id: '$department' } }]).toArray();
     const vendorResult = await db.collection('transactions').aggregate([{ $match: orgQuery }, { $group: { _id: '$vendor' } }]).toArray();
@@ -416,7 +425,10 @@ app.get('/api/stats', async (req, res) => {
       totalSpend,
       totalTransactions,
       departments: deptCount || 8,
-      vendors: vendorCount || 5
+      vendors: vendorCount || 5,
+      citizensServed,
+      transactionsProcessed,
+      serverHours
     });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

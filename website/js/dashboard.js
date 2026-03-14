@@ -80,6 +80,7 @@ async function initDashboard() {
 
   // ── KPI Summary ──
   renderExecSummary(stats, txns);
+  renderUnitEconomics(stats);
 
   // ── Department Domain Cards ──
   renderDomainCards(txns);
@@ -133,6 +134,34 @@ function renderExecSummary(stats, txns) {
       <div class="exec-label">Vendors</div>
       <div class="exec-value" style="color:var(--green);">${vendorCount}</div>
       <div class="exec-sub"><i class="bi bi-shop"></i> Unique vendors</div>
+    </div>`;
+}
+
+function renderUnitEconomics(stats) {
+  const el = document.getElementById('unitEconomicsGrid');
+  if (!el) return;
+
+  const totalSpend = stats.totalSpend || 0;
+  const ctzServed = stats.citizensServed || 0;
+  const txnsProc = stats.transactionsProcessed || 0;
+  const srvHours = stats.serverHours || 0;
+
+  const costPerCitizen = ctzServed > 0 ? (totalSpend / ctzServed) : 0;
+  const costPerTxn = txnsProc > 0 ? (totalSpend / txnsProc) : 0;
+  const costPerSrvHr = srvHours > 0 ? (totalSpend / srvHours) : 0;
+
+  el.innerHTML = `
+    <div class="exec-card blue">
+      <div class="exec-label">Cost per Citizen Served</div>
+      <div class="exec-value" style="color:var(--blue);">₹${costPerCitizen.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+    </div>
+    <div class="exec-card red">
+      <div class="exec-label">Cost per Transaction</div>
+      <div class="exec-value" style="color:var(--red);">₹${costPerTxn.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+    </div>
+    <div class="exec-card yellow">
+      <div class="exec-label">Cost per Server Hour</div>
+      <div class="exec-value" style="color:var(--yellow);">₹${costPerSrvHr.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
     </div>`;
 }
 
